@@ -72,6 +72,15 @@ const getFavouritesApi = (endpoint, params = {}) => {
     });
 };
 
+const getSearchedMovieApi = (endpoint, params = {}) => {
+    return axios.get(`${BASE_URL}${endpoint}`, {
+        headers: {
+            Authorization: `Bearer ${BEARER_TOKEN}`,
+            accept: "application/json",
+        },
+        params,
+    });
+};
 export const getMovies = (page = 1) =>
     getMoviesApi(movieEndpoint, {
         language: "en-US",
@@ -83,15 +92,6 @@ export const getDetails = (id) =>
         language: "en-US",
     });
 
-const getSearchedMovieApi = (endpoint, params = {}) => {
-    return axios.get(`${BASE_URL}${endpoint}`, {
-        headers: {
-            Authorization: `Bearer ${BEARER_TOKEN}`,
-            accept: "application/json",
-        },
-        params,
-    });
-};
 
 export const searchMovies = (query, page = 1) =>
     getSearchedMovieApi("/search/movie", {
