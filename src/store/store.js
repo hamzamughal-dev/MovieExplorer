@@ -4,7 +4,7 @@ const useStore = create((set) => ({
   favorites: [],
   isLoggedIn:false,
 
-  setIsLoggedIn : ()=>set({isLoggedIn:{}}), 
+  setIsLoggedIn : (val = true)=>set({isLoggedIn:val}), 
 
   addFavorite: (movie) =>
     set((state) => ({

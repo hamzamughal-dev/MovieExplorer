@@ -10,7 +10,7 @@ function MainNavbar() {
     const setIsLoggedIn = useStore(state => state.setIsLoggedIn);
 
     const handleLogout = () => {
-        setIsLoggedIn()
+        setIsLoggedIn(false)
         navigate('/login')
     }
 
@@ -25,7 +25,6 @@ function MainNavbar() {
         <nav className="sticky top-0 bg-neutral-900 border-b border-white/5 px-6 md:px-[60px] py-2.5 z-50">
             <div className="relative flex items-center justify-between max-w-7xl mx-auto">
 
-                {/* Left: Logo */}
                 <Link to="/movies" className="flex items-center gap-2 flex-shrink-0">
                     <img src={tmdbLogo} className="w-[42px] h-[42px] cursor-pointer" alt="TMDB logo" />
                     <span className="text-lg font-bold tracking-wider text-white hidden sm:inline select-none">
@@ -33,7 +32,6 @@ function MainNavbar() {
                     </span>
                 </Link>
 
-                {/* Center: Desktop Nav Links (absolutely centered) */}
                 <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
                     {navLinks.map((link) => (
                         <Link
@@ -49,7 +47,6 @@ function MainNavbar() {
                     ))}
                 </div>
 
-                {/* Right: Logout + Mobile Toggle */}
                 <div className="flex items-center gap-3 flex-shrink-0">
                     <button
                         onClick={handleLogout}
@@ -58,7 +55,6 @@ function MainNavbar() {
                         Logout
                     </button>
 
-                    {/* Mobile hamburger */}
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className="md:hidden p-2 text-slate-300 hover:text-white focus:outline-none transition-colors cursor-pointer"
@@ -73,7 +69,6 @@ function MainNavbar() {
                 </div>
             </div>
 
-            {/* Mobile Dropdown Drawer */}
             {isMobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-neutral-900 border-b border-white/10 shadow-2xl p-6 flex flex-col gap-4 z-40">
                     {navLinks.map((link) => (

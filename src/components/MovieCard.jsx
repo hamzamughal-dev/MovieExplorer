@@ -32,7 +32,6 @@ function MovieCard({ movie }) {
                 }
             `}
         >
-            {/* Poster */}
             <div className="relative overflow-hidden aspect-[2/3]">
                 {movie.poster_path ? (
                     <img
@@ -46,7 +45,6 @@ function MovieCard({ movie }) {
                     </div>
                 )}
 
-                {/* Rating Badge */}
                 <div className={`
                     absolute top-[10px] right-[10px]
                     bg-black/75 backdrop-blur-md
@@ -58,7 +56,6 @@ function MovieCard({ movie }) {
                 </div>
             </div>
 
-            {/* Card Footer */}
             <div className="px-[14px] py-[12px]">
                 <h3 className="text-[14px] font-bold text-slate-100 truncate mb-[4px]">
                     {movie.title || movie.name}

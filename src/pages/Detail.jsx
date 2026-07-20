@@ -56,7 +56,6 @@ function Detail() {
     return <Navigate to="/login" replace />;
   }
 
-  // Helper function to check if a value is valid (non-empty, non-N/A, non-zero for numbers)
   const isValid = (val) => {
     if (val === null || val === undefined) return false;
     if (typeof val === 'string') {
@@ -113,7 +112,6 @@ function Detail() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] text-slate-100 relative pb-16">
-      {/* Backdrop Section */}
       {isValid(details.backdrop_path) && (
         <div className="relative w-full h-[320px] md:h-[480px] overflow-hidden">
           <img
@@ -121,13 +119,11 @@ function Detail() {
             alt=""
             className="w-full h-full object-cover opacity-25"
           />
-          {/* Gradients to blend backdrop seamlessly */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0C] via-transparent to-black/50" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0C]/80 via-transparent to-[#0A0A0C]/80" />
         </div>
       )}
 
-      {/* Back Button (Floating on top left) */}
       <div className={`max-w-6xl mx-auto px-6 relative z-20 ${isValid(details.backdrop_path) ? '-mt-[280px] md:-mt-[420px]' : 'pt-8'}`}>
         <button
           onClick={() => navigate(-1)}
@@ -137,10 +133,8 @@ function Detail() {
         </button>
       </div>
 
-      {/* Content Layout */}
       <div className={`max-w-6xl mx-auto px-6 relative z-10 ${isValid(details.backdrop_path) ? 'mt-[100px] md:mt-[180px]' : 'mt-8'} grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-12`}>
 
-        {/* Left Column: Poster & Rating Badge */}
         <div className="flex flex-col items-center md:items-start gap-4">
           <div className="relative w-[230px] md:w-full aspect-[2/3] rounded-[16px] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.8)] border border-[#7c4dff]/15 bg-[#12121e]">
             {isValid(details.poster_path) ? (
@@ -153,7 +147,6 @@ function Detail() {
               <div className="w-full h-full flex items-center justify-center text-[64px]">🎬</div>
             )}
 
-            {/* Rating Badge inside Poster container */}
             {isValid(details.vote_average) && (
               <div className="absolute top-[12px] right-[12px] bg-black/85 backdrop-blur-md border border-yellow-400/30 rounded-[8px] px-2.5 py-1 text-[13px] font-bold text-yellow-400">
                 ⭐ {details.vote_average.toFixed(1)}
@@ -162,21 +155,17 @@ function Detail() {
           </div>
         </div>
 
-        {/* Right Column: Information */}
         <div className="flex flex-col justify-end">
-          {/* Tagline */}
           {isValid(details.tagline) && (
             <p className="text-[#e040fb] font-semibold text-[14px] md:text-[16px] tracking-wider uppercase mb-2">
               "{details.tagline}"
             </p>
           )}
 
-          {/* Title */}
           <h1 className="text-[32px] md:text-[48px] font-extrabold text-white leading-tight mb-4">
             {details.title}
           </h1>
 
-          {/* Genres Badges */}
           {isValid(details.genres) && (
             <div className="flex flex-wrap gap-2 mb-6">
               {details.genres.map((genre) => (
@@ -190,7 +179,6 @@ function Detail() {
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mb-6">
             <button
               onClick={handleWatchNow}
@@ -210,7 +198,6 @@ function Detail() {
             </button>
           </div>
 
-          {/* Info Stats Pills */}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] text-slate-400 border-y border-[#7c4dff]/10 py-4 mb-6">
             {isValid(details.release_date) && (
               <div>
@@ -231,7 +218,6 @@ function Detail() {
                 <span className="text-slate-200 font-medium">{formatRuntime(details.runtime)}</span>
               </div>
             )}
-            {/* Mobile layout duration */}
             {isValid(details.runtime) && (
               <div className="md:hidden">
                 <span className="text-slate-500 mr-1.5">Duration:</span>
@@ -240,7 +226,6 @@ function Detail() {
             )}
           </div>
 
-          {/* Overview */}
           {isValid(details.overview) && (
             <div className="mb-8">
               <h2 className="text-[18px] font-bold text-white mb-2">Overview</h2>
@@ -248,7 +233,6 @@ function Detail() {
             </div>
           )}
 
-          {/* Metadata Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 bg-[#12121e] border border-[#7c4dff]/10 rounded-[16px] p-6">
             {isValid(details.budget) && (
               <div>

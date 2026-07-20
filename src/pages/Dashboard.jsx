@@ -35,7 +35,6 @@ function Dashboard() {
     return (
         <div className="min-h-full bg-gradient-to-br from-[#0A0A0C] via-[#0f0f1a] to-[#0A0A0C] text-white px-6 py-8">
 
-            {/* Header */}
             <div className="mb-8">
                 <h1 className="text-[36px] font-extrabold bg-gradient-to-r from-[#e040fb] to-[#7c4dff] bg-clip-text text-transparent mb-[6px]">
                     🎬 Trending Movies
@@ -45,7 +44,6 @@ function Dashboard() {
                 </p>
             </div>
 
-            {/* Loading State */}
             {loading && (
                 <div className="flex flex-col items-center justify-center h-[300px] gap-4">
                     <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#1e1e2e] border-t-[#7c4dff] animate-spin" />
@@ -53,14 +51,12 @@ function Dashboard() {
                 </div>
             )}
 
-            {/* Error State */}
             {error && !loading && (
                 <div className="text-center p-[40px] bg-red-500/10 border border-red-500/30 rounded-[16px] text-red-400 text-[16px]">
                     ⚠️ {error}
                 </div>
             )}
 
-            {/* Movie Grid */}
             {!loading && !error && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-[24px]">
                     {movies.map((movie) => (
