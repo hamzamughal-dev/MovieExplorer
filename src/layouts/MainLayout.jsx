@@ -1,4 +1,3 @@
-import React from "react"
 import { Outlet } from "react-router-dom"
 import MainNavbar from "../components/MainNavbar"
 import useStore from "../store/store"

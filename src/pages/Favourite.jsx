@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import useStore from '../store/store';
 import { getFavourites } from '../api/api';
@@ -39,7 +39,7 @@ function Favourite() {
     return (
         <div className="min-h-full bg-gradient-to-br from-[#0A0A0C] via-[#0f0f1a] to-[#0A0A0C] text-white px-6 py-8">
 
-            <div className="mb-8">
+            <div className="mb-8 text-center">
                 <h1 className="text-[36px] font-extrabold bg-gradient-to-r from-[#e040fb] to-[#7c4dff] bg-clip-text text-transparent mb-[6px]">
                     Favourites
                 </h1>
@@ -79,3 +79,4 @@ function Favourite() {
 }
 
 export default Favourite;
+

@@ -3,10 +3,9 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
 const BEARER_TOKEN = import.meta.env.VITE_HEADER;
-const ACCOUNT_ID = import.meta.env.VITE_ACCOUNT_ID;
 
 const movieEndpoint = "/trending/movie/day";
-const detailEndpoint = "/movie/"
+const detailEndpoint = "/movie"
 const favouriteEndpoint = "/account/";
 
 export const getSessionIDApi = () => {
@@ -84,7 +83,23 @@ export const getDetails = (id) =>
         language: "en-US",
     });
 
+const getSearchedMovieApi = (endpoint, params = {}) => {
+    return axios.get(`${BASE_URL}${endpoint}`, {
+        headers: {
+            Authorization: `Bearer ${BEARER_TOKEN}`,
+            accept: "application/json",
+        },
+        params,
+    });
+};
 
+export const searchMovies = (query, page = 1) =>
+    getSearchedMovieApi("/search/movie", {
+        query,
+        include_adult: false,
+        language: "en-US",
+        page,
+    });
 export const getSessionID = () => getSessionIDApi();
 export const addToFavourites = (accID, movieID) => addToFavouritesApi(accID, movieID, true);
 export const removeFromFavourites = (accID, movieID) => addToFavouritesApi(accID, movieID, false);

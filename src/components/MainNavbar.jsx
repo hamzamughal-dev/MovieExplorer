@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import tmdbLogo from '../assets/icons/tmdb-icon.svg'
 import useStore from '../store/store'

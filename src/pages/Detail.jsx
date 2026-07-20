@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useStore from '../store/store';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';

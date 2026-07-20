@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import tmdbLogo from '../assets/icons/tmdb-icon.svg'
 
