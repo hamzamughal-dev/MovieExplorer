@@ -1,31 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import useStore from '../store/store';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
-import { getDetails } from '../api/api';
+import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
+import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
 
 const IMAGE_BASE_W500 = 'https://image.tmdb.org/t/p/w500';
 const IMAGE_BASE_ORIGINAL = 'https://image.tmdb.org/t/p/original';
 
 function Detail() {
   const isLoggedIn = useStore((state) => state.isLoggedIn);
-  const favorites = useStore((state) => state.favorites) || [];
-  const addFavorite = useStore((state) => state.addFavorite);
-  const removeFavorite = useStore((state) => state.removeFavorite);
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const ACCOUNT_ID = import.meta.env.VITE_ACCOUNT_ID;
 
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const isFavorite = favorites.some((movie) => Number(movie.id) === Number(id));
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
+  const [favError, setFavError] = useState(null);
 
-  const toggleFavorite = () => {
-    if (!details) return;
-    if (isFavorite) {
-      removeFavorite(details.id);
-    } else {
-      addFavorite(details);
+  const checkFavouriteStatus = async (movieId) => {
+    if (!ACCOUNT_ID) return;
+    try {
+      const res = await getFavourites(ACCOUNT_ID);
+      const list = res.data?.results || [];
+      setIsFavorite(list.some((m) => Number(m.id) === Number(movieId)));
+    } catch (err) {
+      console.warn('Could not load favourites:', err?.response?.data || err.message);
+    }
+  };
+
+  const toggleFavorite = async () => {
+    if (!details || favLoading) return;
+    setFavLoading(true);
+    setFavError(null);
+    try {
+      if (isFavorite) {
+        await removeFromFavourites(ACCOUNT_ID, details.id);
+        setIsFavorite(false);
+        console.log("Removed from favourites with id ", details.id);
+        console.log("Account id is ", ACCOUNT_ID);
+      } else {
+        await addToFavourites(ACCOUNT_ID, details.id);
+        setIsFavorite(true);
+        console.log("Added to favourites with id ", details.id);
+        console.log("Account id is ", ACCOUNT_ID);
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.status_message || 'Failed to update favourites.';
+      setFavError(msg);
+      console.error('Favourite toggle error:', err);
+    } finally {
+      setFavLoading(false);
     }
   };
 
@@ -40,6 +69,7 @@ function Detail() {
       setError(null);
       const response = await getDetails(id);
       setDetails(response.data);
+      await checkFavouriteStatus(id);
     } catch (err) {
       console.error('Error fetching details:', err);
       setError('Failed to load movie details. Please try again.');
@@ -55,35 +85,6 @@ function Detail() {
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
-
-  const isValid = (val) => {
-    if (val === null || val === undefined) return false;
-    if (typeof val === 'string') {
-      const trimmed = val.trim();
-      return trimmed !== '' && trimmed.toUpperCase() !== 'N/A';
-    }
-    if (typeof val === 'number') {
-      return val > 0;
-    }
-    if (Array.isArray(val)) {
-      return val.length > 0;
-    }
-    return true;
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatRuntime = (minutes) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
-  };
 
   if (loading) {
     return (
@@ -188,14 +189,21 @@ function Detail() {
             </button>
             <button
               onClick={toggleFavorite}
-              className={`flex items-center gap-2 px-6 py-3 rounded-[12px] border font-semibold transition cursor-pointer active:scale-[0.98]
+              disabled={favLoading}
+              className={`flex items-center gap-2 px-6 py-3 rounded-[12px] border font-semibold transition cursor-pointer active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed
                 ${isFavorite
                   ? 'bg-red-500/10 border-red-500/40 text-red-400 hover:bg-red-500/20'
                   : 'bg-white/5 border-slate-700 text-slate-200 hover:bg-white/10 hover:border-slate-500'
                 }`}
             >
-              {isFavorite ? '❤️ In Favourites' : '🤍 Add to Favourites'}
+              {favLoading
+                ? <span className="flex items-center gap-2"><span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> Updating...</span>
+                : isFavorite ? '❤️ In Favourites' : '🤍 Add to Favourites'
+              }
             </button>
+            {favError && (
+              <p className="w-full text-[13px] text-red-400 mt-[-8px]">{favError}</p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] text-slate-400 border-y border-[#7c4dff]/10 py-4 mb-6">

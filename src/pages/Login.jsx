@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Navigate } from 'react-router-dom'
 import useStore from '../store/store'
+import { getSessionID } from '../api/api'
 
 function Login() {
 
@@ -14,11 +15,23 @@ function Login() {
     const isLoggedIn = useStore(state => state.isLoggedIn);
     const setIsLoggedIn = useStore(state => state.setIsLoggedIn);
 
-    const Login = (e) => {
+    const Login = async (e) => {
         e.preventDefault();
         if (userName === trueUserName && password === truePassword) {
-            setIsLoggedIn();
-            toast.success("Login successful!", { theme: "dark" });
+            try {
+                const response = await getSessionID();
+                const guestSessionId = response.data?.guest_session_id;
+                if (guestSessionId) {
+                    localStorage.setItem("session_id", guestSessionId);
+                    setIsLoggedIn(true);
+                    toast.success("Login successful!", { theme: "dark" });
+                } else {
+                    toast.error("Failed to generate guest session ID", { theme: "dark" });
+                }
+            } catch (err) {
+                console.error("Session generation error:", err);
+                toast.error("Network error during session generation", { theme: "dark" });
+            }
         } else {
             toast.error("Invalid credentials", { theme: "dark" });
             setUserName("");

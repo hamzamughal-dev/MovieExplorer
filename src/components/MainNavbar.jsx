@@ -10,6 +10,7 @@ function MainNavbar() {
     const setIsLoggedIn = useStore(state => state.setIsLoggedIn);
 
     const handleLogout = () => {
+        localStorage.removeItem("session_id")
         setIsLoggedIn(false)
         navigate('/login')
     }
@@ -25,11 +26,8 @@ function MainNavbar() {
         <nav className="sticky top-0 bg-neutral-900 border-b border-white/5 px-6 md:px-[60px] py-2.5 z-50">
             <div className="relative flex items-center justify-between max-w-7xl mx-auto">
 
-                <Link to="/movies" className="flex items-center gap-2 flex-shrink-0">
+                <Link to="/dashboard" className="flex items-center gap-2 flex-shrink-0">
                     <img src={tmdbLogo} className="w-[42px] h-[42px] cursor-pointer" alt="TMDB logo" />
-                    <span className="text-lg font-bold tracking-wider text-white hidden sm:inline select-none">
-                        Movie<span className="bg-gradient-to-r from-[#01b4e4] to-[#90cea1] bg-clip-text text-transparent">Explorer</span>
-                    </span>
                 </Link>
 
                 <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
