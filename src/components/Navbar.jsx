@@ -11,9 +11,12 @@ function Navbar() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const isLoggedIn = useStore(state => state.isLoggedIn)
     const setIsLoggedIn = useStore(state => state.setIsLoggedIn)
+    const setAccountID = useStore(state => state.setAccountID)
+    const setSessionID = useStore(state => state.setSessionID)
 
     const handleLogout = () => {
-        localStorage.removeItem("session_id")
+        setAccountID(0)
+        setSessionID("")
         setIsLoggedIn(false)
         navigate('/login')
     }
@@ -51,7 +54,7 @@ function Navbar() {
                             >
                                 {link.name}
                                 {isActive(link.path) && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-full shadow-[0_0_8px_#01b4e4]" />
+                                    <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-full shadow-[0_0_8px_#01b4e4] animate-underline" />
                                 )}
                             </Link>
                         ))}

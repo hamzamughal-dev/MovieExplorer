@@ -4,7 +4,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Navigate } from 'react-router-dom'
 import useStore from '../store/authStore'
-import { getSessionID } from '../api/api'
+import { getSessionID, getAccountDetails } from '../api/api'
 import { LOGIN_USERNAME, LOGIN_PASSWORD } from '../utils/constants'
 
 function Login() {
@@ -13,15 +13,27 @@ function Login() {
     const [password, setPassword] = useState("");
     const isLoggedIn = useStore(state => state.isLoggedIn);
     const setIsLoggedIn = useStore(state => state.setIsLoggedIn);
-
+    const setSessionID = useStore(state => state.setSessionID);
+    const setAccountID = useStore(state => state.setAccountID);
     const Login = async (e) => {
         e.preventDefault();
         if (userName === LOGIN_USERNAME && password === LOGIN_PASSWORD) {
             try {
                 const response = await getSessionID();
                 const guestSessionId = response.data?.guest_session_id;
+
                 if (guestSessionId) {
-                    localStorage.setItem("session_id", guestSessionId);
+                    setSessionID(guestSessionId);
+
+                    try {
+                        const accountDetails = await getAccountDetails();
+                        if (accountDetails && accountDetails.id) {
+                            setAccountID(accountDetails.id);
+                        }
+                    } catch (accErr) {
+                        console.error("Could not fetch account details dynamically:", accErr);
+                    }
+
                     setIsLoggedIn(true);
                     toast.success("Login successful!", { theme: "dark" });
                 } else {

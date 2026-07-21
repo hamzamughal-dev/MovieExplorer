@@ -1,6 +1,7 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { IMAGE_BASE } from '../utils/constants';
+import { memo } from 'react';
 
 function getRatingColor(rating) {
     if (rating >= 7) return { text: 'text-green-400', border: 'border-green-400/20' };
@@ -76,4 +77,4 @@ function MovieCard({ movie }) {
     );
 }
 
-export default MovieCard;
+export default memo(MovieCard);

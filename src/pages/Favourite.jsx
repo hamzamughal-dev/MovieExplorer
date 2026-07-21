@@ -3,10 +3,10 @@ import { Navigate } from 'react-router-dom';
 import useStore from '../store/authStore';
 import { getFavourites } from '../api/api';
 import MovieCard from '../components/MovieCard';
-import { ACCOUNT_ID } from '../utils/constants';
 
 function Favourite() {
     const isLoggedIn = useStore(state => state.isLoggedIn);
+    const accountID = useStore(state => state.accountID);
     const [movies, setMovies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,7 +16,7 @@ function Favourite() {
         const fetchFavourites = async () => {
             try {
                 setIsLoading(true);
-                const res = await getFavourites(ACCOUNT_ID);
+                const res = await getFavourites(accountID);
                 const results = res.data?.results ?? [];
 
                 setMovies(results);
@@ -28,8 +28,10 @@ function Favourite() {
             }
         };
 
-        fetchFavourites();
-    }, [ACCOUNT_ID]);
+        if (accountID) {
+            fetchFavourites();
+        }
+    }, [accountID]);
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;

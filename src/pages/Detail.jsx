@@ -3,10 +3,11 @@ import useStore from '../store/authStore';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
 import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
-import { IMAGE_BASE, IMAGE_BASE_ORIGINAL, ACCOUNT_ID } from '../utils/constants';
+import { IMAGE_BASE, IMAGE_BASE_ORIGINAL } from '../utils/constants';
 
 function Detail() {
   const isLoggedIn = useStore((state) => state.isLoggedIn);
+  const accountID = useStore((state) => state.accountID);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -19,9 +20,9 @@ function Detail() {
   const [favError, setFavError] = useState(null);
 
   const checkFavouriteStatus = async (movieId) => {
-    if (!ACCOUNT_ID) return;
+    if (!accountID) return;
     try {
-      const res = await getFavourites(ACCOUNT_ID);
+      const res = await getFavourites(accountID);
       const list = res.data?.results || [];
       setIsFavorite(list.some((m) => Number(m.id) === Number(movieId)));
     } catch (err) {
@@ -35,10 +36,10 @@ function Detail() {
     setFavError(null);
     try {
       if (isFavorite) {
-        await removeFromFavourites(ACCOUNT_ID, details.id);
+        await removeFromFavourites(accountID, details.id);
         setIsFavorite(false);
       } else {
-        await addToFavourites(ACCOUNT_ID, details.id);
+        await addToFavourites(accountID, details.id);
         setIsFavorite(true);
       }
     } catch (err) {
