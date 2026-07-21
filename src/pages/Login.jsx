@@ -69,7 +69,7 @@ function Login() {
                         </span>
                         <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" required className="w-full text-white pl-10 pr-4 py-3 border-2 border-[#e5e7eb]/20 bg-transparent rounded-[10px] text-base outline-none transition-all duration-300 focus:border-[#01b4e4] focus:shadow-[0_0_0_4px_rgba(1,180,228,0.15)] placeholder-slate-400" />
                     </div>
-                    <button type="submit" onClick={Login} className="w-full py-3 rounded-[10px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] text-slate-900 text-base font-semibold cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(1,180,228,0.4)] hover:brightness-110 active:translate-y-0">Login</button>
+                    <button type="submit" onClick={Login} className="w-full py-3 rounded-[10px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] text-slate-900 text-base font-bold cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(1,180,228,0.5)] hover:scale-[1.02] active:translate-y-0">Login</button>
                 </form>
             </div>
             <ToastContainer position="top-right" autoClose={3000} theme="dark" />

@@ -80,22 +80,22 @@ function Detail() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 bg-[#0A0A0C] text-white">
-        <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#1e1e2e] border-t-[#7c4dff] animate-spin" />
-        <p className="text-[#7c4dff] text-[16px]">Loading details...</p>
+      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 bg-[#202731] text-white">
+        <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#181a20] border-t-[#01b4e4] animate-spin" />
+        <p className="text-[#01b4e4] text-[16px]">Loading details...</p>
       </div>
     );
   }
 
   if (error || !details) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 bg-[#0A0A0C] text-white">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 bg-[#202731] text-white">
         <div className="text-center p-[40px] bg-red-500/10 border border-red-500/30 rounded-[16px] text-red-400 text-[16px] max-w-md">
           ⚠️ {error || 'Movie details not found.'}
         </div>
         <button
           onClick={() => navigate('/movies')}
-          className="mt-6 px-5 py-2.5 bg-gradient-to-r from-[#7c4dff] to-[#e040fb] rounded-[8px] font-semibold text-white hover:opacity-90 transition"
+          className="mt-6 px-5 py-2.5 bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-[8px] font-semibold text-slate-900 hover:opacity-90 transition"
         >
           Go Back to Movies
         </button>
@@ -104,32 +104,23 @@ function Detail() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C] text-slate-100 relative pb-16">
+    <div className="min-h-screen bg-[#202731] text-slate-100 relative pb-16">
       {isValid(details.backdrop_path) && (
-        <div className="relative w-full h-[320px] md:h-[480px] overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[320px] md:h-[480px] overflow-hidden pointer-events-none z-0">
           <img
             src={`${IMAGE_BASE_ORIGINAL}${details.backdrop_path}`}
             alt=""
             className="w-full h-full object-cover opacity-25"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0C] via-transparent to-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0C]/80 via-transparent to-[#0A0A0C]/80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#202731] via-transparent to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#202731]/80 via-transparent to-[#202731]/80" />
         </div>
       )}
 
-      <div className={`max-w-6xl mx-auto px-6 relative z-20 ${isValid(details.backdrop_path) ? '-mt-[280px] md:-mt-[420px]' : 'pt-8'}`}>
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-[8px] bg-black/40 backdrop-blur-md border border-[#7c4dff]/20 text-slate-300 hover:text-white hover:border-[#7c4dff]/50 transition cursor-pointer"
-        >
-          ← Back
-        </button>
-      </div>
-
-      <div className={`max-w-6xl mx-auto px-6 relative z-10 ${isValid(details.backdrop_path) ? 'mt-[100px] md:mt-[180px]' : 'mt-8'} grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-12`}>
+      <div className="max-w-6xl mx-auto px-6 relative z-10 pt-8 md:pt-12 grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 md:gap-12">
 
         <div className="flex flex-col items-center md:items-start gap-4">
-          <div className="relative w-[230px] md:w-full aspect-[2/3] rounded-[16px] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.8)] border border-[#7c4dff]/15 bg-[#12121e]">
+          <div className="relative w-[230px] md:w-full aspect-[2/3] rounded-[16px] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.8)] border border-[#01b4e4]/20 bg-[#181a20]">
             {isValid(details.poster_path) ? (
               <img
                 src={`${IMAGE_BASE}${details.poster_path}`}
@@ -150,7 +141,7 @@ function Detail() {
 
         <div className="flex flex-col justify-end">
           {isValid(details.tagline) && (
-            <p className="text-[#e040fb] font-semibold text-[14px] md:text-[16px] tracking-wider uppercase mb-2">
+            <p className="text-[#90cea1] font-semibold text-[14px] md:text-[16px] tracking-wider uppercase mb-2">
               "{details.tagline}"
             </p>
           )}
@@ -164,7 +155,7 @@ function Detail() {
               {details.genres.map((genre) => (
                 <span
                   key={genre.id}
-                  className="px-3 py-1 text-[13px] font-medium bg-[#7c4dff]/10 border border-[#7c4dff]/30 text-[#e040fb] rounded-full"
+                  className="px-3 py-1 text-[13px] font-medium bg-[#01b4e4]/10 border border-[#01b4e4]/30 text-[#90cea1] rounded-full"
                 >
                   {genre.name}
                 </span>
@@ -175,7 +166,7 @@ function Detail() {
           <div className="flex flex-wrap gap-4 mb-6">
             <button
               onClick={handleWatchNow}
-              className="flex items-center gap-2 px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#e040fb] to-[#7c4dff] text-white font-bold hover:shadow-[0_0_20px_rgba(124,77,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer"
+              className="flex items-center gap-2 px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] text-slate-900 font-bold hover:shadow-[0_0_20px_rgba(1,180,228,0.4)] hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer"
             >
               ▶️ Watch Now
             </button>
@@ -198,7 +189,7 @@ function Detail() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] text-slate-400 border-y border-[#7c4dff]/10 py-4 mb-6">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px] text-slate-400 border-y border-white/10 py-4 mb-6">
             {isValid(details.release_date) && (
               <div>
                 <span className="text-slate-500 mr-1.5">Released:</span>
@@ -233,7 +224,7 @@ function Detail() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 bg-[#12121e] border border-[#7c4dff]/10 rounded-[16px] p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 bg-[#181a20]/60 border border-white/5 rounded-[16px] p-6">
             {isValid(details.budget) && (
               <div>
                 <span className="block text-[12px] text-slate-500 uppercase tracking-wider mb-0.5">Budget</span>
