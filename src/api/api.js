@@ -1,20 +1,13 @@
 import axios from 'axios';
+import { BASE_URL, API_KEY, BEARER_TOKEN } from '../utils/constants';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY;
-const BEARER_TOKEN = import.meta.env.VITE_HEADER;
-
-const movieEndpoint = "/trending/movie/day";
-const detailEndpoint = "/movie"
-const favouriteEndpoint = "/account/";
-
-export const getSessionIDApi = () => {
+export const getSessionID = () => {
     return axios.get(`${BASE_URL}/authentication/guest_session/new`, {
         params: {
             api_key: API_KEY,
         },
     });
-}
+};
 
 export const getAccountDetails = async () => {
     const response = await axios.get(`${BASE_URL}/account`, {
@@ -22,34 +15,36 @@ export const getAccountDetails = async () => {
             Authorization: `Bearer ${BEARER_TOKEN}`,
             'Content-Type': 'application/json',
         },
-    })
+    });
     return response.data;
-}
-const getMoviesApi = (endpoint, params = {}) => {
-    return axios.get(`${BASE_URL}${endpoint}`, {
+};
+
+export const getMovies = (page = 1) => {
+    return axios.get(`${BASE_URL}/trending/movie/day`, {
         params: {
             api_key: API_KEY,
-            ...params,
+            language: "en-US",
+            page,
         },
     });
 };
 
-const getDetailsApi = (endpoint, params = {}) => {
-    return axios.get(`${BASE_URL}${endpoint}`, {
+export const getDetails = (id) => {
+    return axios.get(`${BASE_URL}/movie/${id}`, {
         params: {
             api_key: API_KEY,
-            ...params,
+            language: "en-US",
         },
     });
 };
 
-const addToFavouritesApi = (accID, movieID, favorite = true) => {
+export const addToFavourites = (accID, movieID) => {
     return axios.post(
         `${BASE_URL}/account/${accID}/favorite`,
         {
             media_id: Number(movieID),
             media_type: "movie",
-            favorite,
+            favorite: true,
         },
         {
             headers: {
@@ -58,53 +53,49 @@ const addToFavouritesApi = (accID, movieID, favorite = true) => {
             },
         }
     );
-}
+};
 
-const getFavouritesApi = (endpoint, params = {}) => {
-    return axios.get(`${BASE_URL}${endpoint}`, {
+export const removeFromFavourites = (accID, movieID) => {
+    return axios.post(
+        `${BASE_URL}/account/${accID}/favorite`,
+        {
+            media_id: Number(movieID),
+            media_type: "movie",
+            favorite: false,
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${BEARER_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+};
+
+export const getFavourites = (accID, page = 1) => {
+    return axios.get(`${BASE_URL}/account/${accID}/favorite/movies`, {
         headers: {
             Authorization: `Bearer ${BEARER_TOKEN}`,
             'Content-Type': 'application/json',
         },
         params: {
-            ...params,
+            language: "en-US",
+            page,
         },
     });
 };
 
-const getSearchedMovieApi = (endpoint, params = {}) => {
-    return axios.get(`${BASE_URL}${endpoint}`, {
+export const searchMovies = (query, page = 1) => {
+    return axios.get(`${BASE_URL}/search/movie`, {
         headers: {
             Authorization: `Bearer ${BEARER_TOKEN}`,
             accept: "application/json",
         },
-        params,
+        params: {
+            query,
+            include_adult: false,
+            language: "en-US",
+            page,
+        },
     });
 };
-export const getMovies = (page = 1) =>
-    getMoviesApi(movieEndpoint, {
-        language: "en-US",
-        page,
-    });
-
-export const getDetails = (id) =>
-    getDetailsApi(`${detailEndpoint}/${id}`, {
-        language: "en-US",
-    });
-
-
-export const searchMovies = (query, page = 1) =>
-    getSearchedMovieApi("/search/movie", {
-        query,
-        include_adult: false,
-        language: "en-US",
-        page,
-    });
-export const getSessionID = () => getSessionIDApi();
-export const addToFavourites = (accID, movieID) => addToFavouritesApi(accID, movieID, true);
-export const removeFromFavourites = (accID, movieID) => addToFavouritesApi(accID, movieID, false);
-export const getFavourites = (accID, page = 1) =>
-    getFavouritesApi(`${favouriteEndpoint}${accID}/favorite/movies`, {
-        language: "en-US",
-        page,
-    });

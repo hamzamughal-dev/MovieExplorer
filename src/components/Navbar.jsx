@@ -1,0 +1,122 @@
+import { useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import Logo from './Logo'
+import useStore from '../store/authStore'
+
+function Navbar() {
+    const navigate = useNavigate()
+    const location = useLocation()
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const isLoggedIn = useStore(state => state.isLoggedIn)
+    const setIsLoggedIn = useStore(state => state.setIsLoggedIn)
+
+    const handleLogout = () => {
+        localStorage.removeItem("session_id")
+        setIsLoggedIn(false)
+        navigate('/login')
+    }
+
+    const navLinks = [
+        { name: 'Movies', path: '/movies' },
+        { name: 'Favourites', path: '/favourite' }
+    ]
+
+    const isActive = (path) => location.pathname === path
+
+    return (
+        <nav className="sticky top-0 bg-[#242934] border-b border-white/5 px-6 md:px-[40px] py-2.5 z-50">
+            <div className="relative flex items-center justify-between max-w-7xl mx-auto">
+
+
+                <Link to={isLoggedIn ? "/movies" : "/login"} className="flex items-center gap-2.5 flex-shrink-0 group">
+                    <Logo className="w-[42px] h-[42px] cursor-pointer transition-transform duration-300 group-hover:scale-105" />
+                    <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-[#01b4e4] to-[#90cea1] bg-clip-text text-transparent tracking-wide select-none">
+                        Movie Explorer
+                    </span>
+                </Link>
+
+
+                {isLoggedIn && (
+                    <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                to={link.path}
+                                className={`relative text-base font-semibold transition-all duration-300 py-1.5 px-1 ${isActive(link.path)
+                                    ? 'text-[#01b4e4]'
+                                    : 'text-slate-400 hover:text-white'
+                                    }`}
+                            >
+                                {link.name}
+                                {isActive(link.path) && (
+                                    <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-full shadow-[0_0_8px_#01b4e4]" />
+                                )}
+                            </Link>
+                        ))}
+                    </div>
+                )}
+
+
+                <div className="flex items-center gap-3 flex-shrink-0">
+                    {isLoggedIn ? (
+                        <>
+
+                            <button
+                                onClick={handleLogout}
+                                className="hidden md:block bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-full px-6 py-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_rgba(1,180,228,0.5)] active:scale-95 font-semibold text-slate-900"
+                            >
+                                Logout
+                            </button>
+
+
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="md:hidden p-2 text-slate-300 hover:text-white focus:outline-none transition-colors cursor-pointer"
+                                aria-label="Toggle navigation menu"
+                            >
+                                <div className="w-6 h-5 flex flex-col justify-between items-end relative overflow-hidden">
+                                    <span className={`w-6 h-[2px] bg-white rounded-full transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-[9px]' : ''}`} />
+                                    <span className={`w-5 h-[2px] bg-white rounded-full transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
+                                    <span className={`w-6 h-[2px] bg-white rounded-full transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-[9px]' : ''}`} />
+                                </div>
+                            </button>
+                        </>
+                    ) : (
+
+                        <button className="bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-[50px] px-5 py-2 text-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 hover:shadow-[0_4px_8px_rgba(1,180,228,0.35)] active:translate-y-0 font-semibold text-slate-900">
+                            Signup
+                        </button>
+                    )}
+                </div>
+            </div>
+
+
+            {isLoggedIn && isMobileMenuOpen && (
+                <div className="md:hidden absolute top-full left-0 w-full bg-[#242934] border-b border-white/10 shadow-2xl p-6 flex flex-col gap-4 z-40">
+                    {navLinks.map((link) => (
+                        <Link
+                            key={link.name}
+                            to={link.path}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={`text-base font-semibold py-1 transition-colors ${isActive(link.path) ? 'text-[#01b4e4]' : 'text-slate-300 hover:text-white'
+                                }`}
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                    <button
+                        onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            handleLogout();
+                        }}
+                        className="bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-[50px] py-2.5 w-full text-center cursor-pointer transition-all duration-300 font-semibold text-slate-900 mt-2"
+                    >
+                        Logout
+                    </button>
+                </div>
+            )}
+        </nav>
+    )
+}
+
+export default Navbar

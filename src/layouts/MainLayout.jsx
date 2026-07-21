@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom"
-import MainNavbar from "../components/MainNavbar"
-import useStore from "../store/store"
+import Navbar from "../components/Navbar"
+import useStore from "../store/authStore"
 function MainLayout() {
     const isLoggedIn = useStore(state => state.isLoggedIn);
     return (
-        <div className="flex flex-col h-screen bg-[#0A0A0C]">
-            {isLoggedIn && <MainNavbar />}
+        <div className="flex flex-col h-screen bg-[#202731]">
+            <Navbar />
             <main className="flex-1 overflow-y-auto">
                 <Outlet />
             </main>

@@ -1,25 +1,21 @@
 import { useState, useEffect } from 'react';
-import useStore from '../store/store';
+import useStore from '../store/authStore';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
 import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
-
-const IMAGE_BASE_W500 = 'https://image.tmdb.org/t/p/w500';
-const IMAGE_BASE_ORIGINAL = 'https://image.tmdb.org/t/p/original';
+import { IMAGE_BASE, IMAGE_BASE_ORIGINAL,ACCOUNT_ID } from '../utils/constants';
 
 function Detail() {
   const isLoggedIn = useStore((state) => state.isLoggedIn);
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const ACCOUNT_ID = import.meta.env.VITE_ACCOUNT_ID;
-
   const [details, setDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [isFavorite, setIsFavorite] = useState(false);
-  const [favLoading, setFavLoading] = useState(false);
+  const [isFavLoading, setIsFavLoading] = useState(false);
   const [favError, setFavError] = useState(null);
 
   const checkFavouriteStatus = async (movieId) => {
@@ -34,27 +30,23 @@ function Detail() {
   };
 
   const toggleFavorite = async () => {
-    if (!details || favLoading) return;
-    setFavLoading(true);
+    if (!details || isFavLoading) return;
+    setIsFavLoading(true);
     setFavError(null);
     try {
       if (isFavorite) {
         await removeFromFavourites(ACCOUNT_ID, details.id);
         setIsFavorite(false);
-        console.log("Removed from favourites with id ", details.id);
-        console.log("Account id is ", ACCOUNT_ID);
       } else {
         await addToFavourites(ACCOUNT_ID, details.id);
         setIsFavorite(true);
-        console.log("Added to favourites with id ", details.id);
-        console.log("Account id is ", ACCOUNT_ID);
       }
     } catch (err) {
       const msg = err?.response?.data?.status_message || 'Failed to update favourites.';
       setFavError(msg);
       console.error('Favourite toggle error:', err);
     } finally {
-      setFavLoading(false);
+      setIsFavLoading(false);
     }
   };
 
@@ -65,7 +57,7 @@ function Detail() {
 
   const fetchDetails = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
       const response = await getDetails(id);
       setDetails(response.data);
@@ -74,7 +66,7 @@ function Detail() {
       console.error('Error fetching details:', err);
       setError('Failed to load movie details. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -86,7 +78,7 @@ function Detail() {
     return <Navigate to="/login" replace />;
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 bg-[#0A0A0C] text-white">
         <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#1e1e2e] border-t-[#7c4dff] animate-spin" />
@@ -102,10 +94,10 @@ function Detail() {
           ⚠️ {error || 'Movie details not found.'}
         </div>
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/movies')}
           className="mt-6 px-5 py-2.5 bg-gradient-to-r from-[#7c4dff] to-[#e040fb] rounded-[8px] font-semibold text-white hover:opacity-90 transition"
         >
-          Go Back to Dashboard
+          Go Back to Movies
         </button>
       </div>
     );
@@ -140,7 +132,7 @@ function Detail() {
           <div className="relative w-[230px] md:w-full aspect-[2/3] rounded-[16px] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.8)] border border-[#7c4dff]/15 bg-[#12121e]">
             {isValid(details.poster_path) ? (
               <img
-                src={`${IMAGE_BASE_W500}${details.poster_path}`}
+                src={`${IMAGE_BASE}${details.poster_path}`}
                 alt={details.title}
                 className="w-full h-full object-cover"
               />
@@ -189,14 +181,14 @@ function Detail() {
             </button>
             <button
               onClick={toggleFavorite}
-              disabled={favLoading}
+              disabled={isFavLoading}
               className={`flex items-center gap-2 px-6 py-3 rounded-[12px] border font-semibold transition cursor-pointer active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed
                 ${isFavorite
                   ? 'bg-red-500/10 border-red-500/40 text-red-400 hover:bg-red-500/20'
                   : 'bg-white/5 border-slate-700 text-slate-200 hover:bg-white/10 hover:border-slate-500'
                 }`}
             >
-              {favLoading
+              {isFavLoading
                 ? <span className="flex items-center gap-2"><span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> Updating...</span>
                 : isFavorite ? '❤️ In Favourites' : '🤍 Add to Favourites'
               }

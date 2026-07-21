@@ -3,21 +3,20 @@ import { useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Navigate } from 'react-router-dom'
-import useStore from '../store/store'
+import useStore from '../store/authStore'
 import { getSessionID } from '../api/api'
+import { LOGIN_USERNAME, LOGIN_PASSWORD } from '../utils/constants'
 
 function Login() {
 
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
-    const trueUserName = "mughal__1234";
-    const truePassword = "12345678";
     const isLoggedIn = useStore(state => state.isLoggedIn);
     const setIsLoggedIn = useStore(state => state.setIsLoggedIn);
 
     const Login = async (e) => {
         e.preventDefault();
-        if (userName === trueUserName && password === truePassword) {
+        if (userName === LOGIN_USERNAME && password === LOGIN_PASSWORD) {
             try {
                 const response = await getSessionID();
                 const guestSessionId = response.data?.guest_session_id;
@@ -40,12 +39,12 @@ function Login() {
     }
 
     if (isLoggedIn) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/movies" replace />;
     }
 
     return (
         <div className="h-full w-full flex justify-center items-center bg-cover bg-center bg-no-repeat p-5" style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.7)), url(${loginPoster})` }}>
-            <div className="w-full max-w-[400px] bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-[18px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] text-center transition-all duration-300
+            <div className="w-full max-w-[400px] bg-[#242934]/40 backdrop-blur-xl border border-white/10 p-8 rounded-[18px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] text-center transition-all duration-300
     hover:-translate-y-1
     hover:shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clapperboard-icon lucide-clapperboard w-[52px] h-[52px] p-2 text-[#00d8ff] bg-[#081a32] rounded-full cursor-pointer block mx-auto mb-4 shadow-[0_8px_18px_rgba(0,0,0,0.35)]"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg>

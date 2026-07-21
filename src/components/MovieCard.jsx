@@ -1,33 +1,37 @@
 import { Navigate, useNavigate } from 'react-router-dom';
-
-const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+import { useState } from 'react';
+import { IMAGE_BASE } from '../utils/constants';
 
 function getRatingColor(rating) {
-    if (rating >= 7) return { text: 'text-green-400', border: 'border-green-400/30' };
-    if (rating >= 5) return { text: 'text-yellow-400', border: 'border-yellow-400/30' };
-    return { text: 'text-red-400', border: 'border-red-400/30' };
+    if (rating >= 7) return { text: 'text-green-400', border: 'border-green-400/20' };
+    if (rating >= 5) return { text: 'text-yellow-400', border: 'border-yellow-400/20' };
+    return { text: 'text-red-400', border: 'border-red-400/20' };
 }
 
 function MovieCard({ movie }) {
-    const [hovered, setHovered] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const rating = getRatingColor(movie.vote_average);
 
     const navigate = useNavigate();
     const handleClick = () => {
         navigate(`/detail/${movie.id}`);
     }
+    
+    const voteAverage = movie.vote_average;
+    const ratingText = voteAverage && voteAverage > 0 ? voteAverage.toFixed(1) : 'N/A';
+
     return (
         <div
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             onClick={() => handleClick(movie.id)}
             className={`
-                relative rounded-[16px] overflow-hidden bg-[#12121e]
-                border border-[#7c4dff]/15 cursor-pointer
+                relative rounded-[16px] overflow-hidden bg-[#161a23]
+                border border-[#262b35]/40 cursor-pointer
                 transition-all duration-300 ease-in-out
-                ${hovered
-                    ? 'z-10 -translate-y-[8px] shadow-[0_20px_40px_rgba(124,77,255,0.3)] border-[#7c4dff]/40'
-                    : 'z-0 translate-y-0 shadow-[0_4px_12px_rgba(0,0,0,0.4)]'
+                ${isHovered
+                    ? 'z-10 -translate-y-[6px] shadow-[0_15px_30px_rgba(0,0,0,0.6)] border-slate-700/60'
+                    : 'z-0 translate-y-0 shadow-[0_4px_12px_rgba(0,0,0,0.3)]'
                 }
             `}
         >
@@ -36,34 +40,34 @@ function MovieCard({ movie }) {
                     <img
                         src={`${IMAGE_BASE}${movie.poster_path}`}
                         alt={movie.title || movie.name}
-                        className="w-full h-full object-cover block"
+                        className="w-full h-full object-cover block transition-transform duration-500 hover:scale-105"
                     />
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#1e1e2e] to-[#2d2d44] flex items-center justify-center text-[48px]">
+                    <div className="w-full h-full bg-gradient-to-br from-[#1d222f] to-[#121620] flex items-center justify-center text-[48px]">
                         🎬
                     </div>
                 )}
 
                 <div className={`
                     absolute top-[10px] right-[10px]
-                    bg-black/75 backdrop-blur-md
-                    rounded-[8px] px-[8px] py-[4px]
+                    bg-black/70 backdrop-blur-md
+                    rounded-[8px] px-[8px] py-[3.5px]
                     text-[12px] font-bold
                     border ${rating.border} ${rating.text}
                 `}>
-                    ⭐ {movie.vote_average?.toFixed(1)}
+                    ⭐ {ratingText}
                 </div>
             </div>
 
             <div className="px-[14px] py-[12px]">
-                <h3 className="text-[14px] font-bold text-slate-100 truncate mb-[4px]">
+                <h3 className="text-[14px] font-bold text-slate-100 truncate mb-[6px]">
                     {movie.title || movie.name}
                 </h3>
-                <div className="flex items-center justify-between">
-                    <span className="text-[12px] text-[#7c4dff] font-semibold">
-                        {movie.media_type === 'tv' ? '📺 TV Show' : '🎥 Movie'}
+                <div className="flex items-center justify-between text-[12px] text-slate-400">
+                    <span className="font-medium truncate mr-2">
+                        {movie.media_type === 'tv' ? 'TV Show' : 'Movie'}
                     </span>
-                    <span className="text-[12px] text-slate-500">
+                    <span className="text-slate-500 flex-shrink-0">
                         {movie.release_date?.slice(0, 4) || movie.first_air_date?.slice(0, 4) || 'N/A'}
                     </span>
                 </div>
