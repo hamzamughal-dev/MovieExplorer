@@ -3,7 +3,7 @@ import useStore from '../store/authStore';
 import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
 import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
-import { IMAGE_BASE, IMAGE_BASE_ORIGINAL,ACCOUNT_ID } from '../utils/constants';
+import { IMAGE_BASE, IMAGE_BASE_ORIGINAL, ACCOUNT_ID } from '../utils/constants';
 
 function Detail() {
   const isLoggedIn = useStore((state) => state.isLoggedIn);

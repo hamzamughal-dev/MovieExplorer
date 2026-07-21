@@ -16,7 +16,7 @@ function MovieCard({ movie }) {
     const handleClick = () => {
         navigate(`/detail/${movie.id}`);
     }
-    
+
     const voteAverage = movie.vote_average;
     const ratingText = voteAverage && voteAverage > 0 ? voteAverage.toFixed(1) : 'N/A';
 
