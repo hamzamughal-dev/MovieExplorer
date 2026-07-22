@@ -4,9 +4,12 @@ import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
 import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
 import { IMAGE_BASE, IMAGE_BASE_ORIGINAL } from '../utils/constants';
+import Loader from '../components/Loader';
+
 
 function Detail() {
-  const isLoggedIn = useStore((state) => state.isLoggedIn);
+  const sessionID = useStore((state) => state.sessionID);
+  const isLoggedIn = !!sessionID;
   const accountID = useStore((state) => state.accountID);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -80,12 +83,7 @@ function Detail() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-4 bg-[#202731] text-white">
-        <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#181a20] border-t-[#01b4e4] animate-spin" />
-        <p className="text-[#01b4e4] text-[16px]">Loading details...</p>
-      </div>
-    );
+    return <Loader text="Loading details..." className="min-h-[80vh] bg-[#202731]" />;
   }
 
   if (error || !details) {

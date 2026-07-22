@@ -9,15 +9,15 @@ function Navbar() {
     const location = useLocation()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const isLoggedIn = useStore(state => state.isLoggedIn)
-    const setIsLoggedIn = useStore(state => state.setIsLoggedIn)
+    const sessionID = useStore(state => state.sessionID)
+    const isLoggedIn = !!sessionID
     const setAccountID = useStore(state => state.setAccountID)
     const setSessionID = useStore(state => state.setSessionID)
 
     const handleLogout = () => {
         setAccountID(0)
         setSessionID("")
-        setIsLoggedIn(false)
+        localStorage.removeItem("auth-storage")
         navigate('/login')
     }
 

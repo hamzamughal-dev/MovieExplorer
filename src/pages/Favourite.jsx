@@ -3,9 +3,12 @@ import { Navigate } from 'react-router-dom';
 import useStore from '../store/authStore';
 import { getFavourites } from '../api/api';
 import MovieCard from '../components/MovieCard';
+import Loader from '../components/Loader';
+
 
 function Favourite() {
-    const isLoggedIn = useStore(state => state.isLoggedIn);
+    const sessionID = useStore(state => state.sessionID);
+    const isLoggedIn = !!sessionID;
     const accountID = useStore(state => state.accountID);
     const [movies, setMovies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -50,10 +53,7 @@ function Favourite() {
             </div>
 
             {isLoading && (
-                <div className="flex flex-col items-center justify-center h-[300px] gap-4">
-                    <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#1e1e2e] border-t-[#01b4e4] animate-spin" />
-                    <p className="text-[#01b4e4] text-[16px]">Fetching favourites...</p>
-                </div>
+                <Loader text="Fetching favourites..." />
             )}
 
             {error && !isLoading && (

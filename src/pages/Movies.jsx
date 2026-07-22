@@ -3,9 +3,12 @@ import { Navigate } from 'react-router-dom';
 import useStore from '../store/authStore';
 import { getMovies, searchMovies } from '../api/api';
 import MovieCard from '../components/MovieCard';
+import Loader from '../components/Loader';
+
 
 function Movies() {
-    const isLoggedIn = useStore(state => state.isLoggedIn);
+    const sessionID = useStore(state => state.sessionID);
+    const isLoggedIn = !!sessionID;
 
     const [movies, setMovies] = useState([]);
     const [page, setPage] = useState(1);
@@ -147,17 +150,11 @@ function Movies() {
             </div>
 
             {isLoading && page === 1 && !isSearchMode && (
-                <div className="flex flex-col items-center justify-center h-[300px] gap-4">
-                    <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#1e1e2e] border-t-[#01b4e4] animate-spin" />
-                    <p className="text-[#01b4e4] text-[16px]">Fetching movies...</p>
-                </div>
+                <Loader text="Fetching movies..." />
             )}
 
             {isSearching && (
-                <div className="flex flex-col items-center justify-center h-[300px] gap-4">
-                    <div className="w-[48px] h-[48px] rounded-full border-[4px] border-[#1e1e2e] border-t-[#01b4e4] animate-spin" />
-                    <p className="text-[#01b4e4] text-[16px]">Searching...</p>
-                </div>
+                <Loader text="Searching..." />
             )}
 
             {(error || searchError) && !isLoading && !isSearching && (
