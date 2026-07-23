@@ -1,12 +1,15 @@
-import loginPoster from '../assets/images/login-poster.jpg'
 import { useState } from 'react'
 import { useForm } from "react-hook-form"
+import { Navigate, Link } from 'react-router-dom'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { Navigate, Link } from 'react-router-dom'
+
 import useStore from '../store/authStore'
+
+import loginPoster from '../assets/images/login-poster.jpg'
 import Loader from '../components/Loader'
 import Logo from '../components/Logo'
+
 import { signupSchema } from "../schemas/signupSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 

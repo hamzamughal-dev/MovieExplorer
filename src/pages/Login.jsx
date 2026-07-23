@@ -1,14 +1,17 @@
-import loginPoster from '../assets/images/login-poster.jpg'
-import { useState } from 'react'
+import { useState } from 'react';
 import { useForm } from "react-hook-form";
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { Navigate, Link } from 'react-router-dom'
-import useStore from '../store/authStore'
-import { getSessionID, getAccountDetails } from '../api/api'
-import { LOGIN_USERNAME, LOGIN_PASSWORD } from '../utils/constants'
-import Loader from '../components/Loader'
-import Logo from '../components/Logo'
+import { Navigate, Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import loginPoster from '../assets/images/login-poster.jpg';
+import useStore from '../store/authStore';
+import { getSessionID, getAccountDetails } from '../api/api';
+import { LOGIN_USERNAME, LOGIN_PASSWORD } from '../utils/constants';
+
+import Loader from '../components/Loader';
+import Logo from '../components/Logo';
 
 const EyeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -25,12 +28,6 @@ const EyeOffIcon = () => (
         <line x1="2" x2="22" y1="2" y2="22" />
     </svg>
 );
-
-const stats = [
-    { value: '10K+', label: 'Movies' },
-    { value: '500+', label: 'TV Shows' },
-    { value: '50K+', label: 'Reviews' },
-];
 
 const features = [
     {
@@ -74,50 +71,62 @@ const features = [
 
 function Login() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
-    const [isLoading, setIsLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+
     const sessionID = useStore(state => state.sessionID);
-    const isLoggedIn = !!sessionID;
     const setSessionID = useStore(state => state.setSessionID);
     const setAccountID = useStore(state => state.setAccountID);
 
-    const handleLogin = async ({ userName, password }) => {
-        if (userName === LOGIN_USERNAME && password === LOGIN_PASSWORD) {
-            setIsLoading(true);
-            try {
-                const response = await getSessionID();
-                const guestSessionId = response.data?.guest_session_id;
-                if (guestSessionId) {
-                    try {
-                        const accountDetails = await getAccountDetails();
-                        if (accountDetails && accountDetails.id) {
-                            setAccountID(accountDetails.id);
-                        }
-                    } catch (accErr) {
-                        console.error("Could not fetch account details dynamically:", accErr);
-                    }
-                    setSessionID(guestSessionId);
-                } else {
-                    toast.error("Failed to generate session ID", { theme: "dark" });
-                    setIsLoading(false);
-                }
-            } catch (err) {
-                console.error("Session generation error:", err);
-                toast.error("Network error during login", { theme: "dark" });
-                setIsLoading(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const isLoggedIn = !!sessionID;
+
+    const {
+        mutate: login,
+        isPending: isLoading
+    } = useMutation({
+        mutationKey: ['login'],
+        mutationFn: async () => {
+            const response = await getSessionID();
+            const guestSessionID = response.data?.guest_session_id;
+
+            if (!guestSessionID) {
+                throw new Error("Failed to generate guest session ID");
             }
-        } else {
-            toast.error("Invalid credentials", { theme: "dark" });
+
+            let accountID = null;
+            try {
+                const accountDetails = await getAccountDetails();
+                accountID = accountDetails?.id ?? null;
+            } catch (error) {
+                console.error("Could not fetch account details:", error);
+            }
+
+            return { guestSessionID, accountID };
+        },
+        onSuccess: ({ guestSessionID, accountID }) => {
+            setSessionID(guestSessionID);
+            if (accountID) setAccountID(accountID);
+            toast.success("Logged in successfully!", { theme: "dark" });
+        },
+        onError: (error) => {
+            toast.error(error.message, { theme: "dark" });
             reset();
         }
-    }
+    });
+
+    const handleLogin = (data) => {
+        if (data.userName !== LOGIN_USERNAME || data.password !== LOGIN_PASSWORD) {
+            toast.error("Invalid Credentials", { theme: "dark" });
+            reset();
+            return;
+        }
+        login(data);
+    };
 
     if (isLoggedIn) return <Navigate to="/movies" replace />;
     if (isLoading) return <Loader text="Logging in..." className="min-h-screen bg-[#0a0d14]" />;
 
     return (
         <div className="min-h-screen w-full flex overflow-hidden bg-[#0a0d14]">
-
             <div
                 className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden"
                 style={{
@@ -172,6 +181,7 @@ function Login() {
                         <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">Welcome back</h2>
                         <p className="text-slate-400 text-sm">Sign in to your account to continue.</p>
                     </div>
+
                     <form className="flex flex-col gap-5" onSubmit={handleSubmit(handleLogin)}>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-semibold text-slate-300 uppercase tracking-widest">Username</label>
@@ -250,7 +260,7 @@ function Login() {
 
             <ToastContainer position="top-right" autoClose={3000} theme="dark" />
         </div>
-    )
+    );
 }
 
-export default Login
+export default Login;

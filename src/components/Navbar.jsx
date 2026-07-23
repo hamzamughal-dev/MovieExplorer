@@ -128,7 +128,7 @@ function Navbar() {
                 <div className="md:hidden absolute top-full left-0 w-full bg-[#242934] border-b border-white/10 shadow-2xl p-6 flex flex-col gap-4 z-40">
                     <div className="flex items-center gap-3 pb-3 border-b border-white/5">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-r from-[#01b4e4] to-[#90cea1] flex items-center justify-center text-slate-900 font-bold text-sm uppercase">
-                            {LOGIN_USERNAME ? LOGIN_USERNAME.charAt(0) : 'U'}
+                            {LOGIN_USERNAME?.charAt(0) ?? 'U'}
                         </div>
                         <div className="flex flex-col">
                             <span className="text-sm font-semibold text-white">{LOGIN_USERNAME}</span>

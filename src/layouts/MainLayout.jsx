@@ -1,8 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom"
 import Navbar from "../components/Navbar"
-import useStore from "../store/authStore"
 function MainLayout() {
-    const isLoggedIn = useStore(state => state.isLoggedIn);
     const location = useLocation();
     const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 

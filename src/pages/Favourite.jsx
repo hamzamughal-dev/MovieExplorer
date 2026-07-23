@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
-import useStore from '../store/authStore';
+
 import { getFavourites } from '../api/api';
+import useStore from '../store/authStore';
+
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
 
@@ -10,31 +12,20 @@ function Favourite() {
     const sessionID = useStore(state => state.sessionID);
     const isLoggedIn = !!sessionID;
     const accountID = useStore(state => state.accountID);
-    const [movies, setMovies] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
 
+    const {
+        data: favouritesData,
+        isLoading,
+        error
+    } = useQuery({
+        queryKey: ["favourites", accountID],
+        queryFn: () => getFavourites(accountID),
+        enabled: !!accountID,
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+    });
 
-    useEffect(() => {
-        const fetchFavourites = async () => {
-            try {
-                setIsLoading(true);
-                const res = await getFavourites(accountID);
-                const results = res.data?.results ?? [];
-
-                setMovies(results);
-            } catch (err) {
-                console.error('❌ Error fetching favourites:', err);
-                setError('Failed to load favourites. Please try again.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        if (accountID) {
-            fetchFavourites();
-        }
-    }, [accountID]);
+    const movies = favouritesData?.data?.results ?? [];
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
@@ -58,7 +49,7 @@ function Favourite() {
 
             {error && !isLoading && (
                 <div className="text-center p-[40px] bg-red-500/10 border border-red-500/30 rounded-[16px] text-red-400 text-[16px]">
-                    ⚠️ {error}
+                    ⚠️ {error.message || 'Failed to load favourites.'}
                 </div>
             )}
 
