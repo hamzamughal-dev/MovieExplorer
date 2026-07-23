@@ -8,13 +8,16 @@ body {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #202731;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #01b4e4;
   border-radius: 999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #90cea1;
 }
@@ -24,6 +27,7 @@ body {
     transform: scaleX(0);
     opacity: 0;
   }
+
   100% {
     transform: scaleX(1);
     opacity: 1;

@@ -19,7 +19,6 @@ function Detail() {
   const [error, setError] = useState(null);
 
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isFavLoading, setIsFavLoading] = useState(false);
   const [favError, setFavError] = useState(null);
 
   const checkFavouriteStatus = async (movieId) => {
@@ -34,23 +33,27 @@ function Detail() {
   };
 
   const toggleFavorite = async () => {
-    if (!details || isFavLoading) return;
-    setIsFavLoading(true);
+    if (!details || !accountID) return;
+
+    const previousState = isFavorite;
+    const nextState = !previousState;
+
+    // Optimistic UI update immediately
+    setIsFavorite(nextState);
     setFavError(null);
+
     try {
-      if (isFavorite) {
+      if (previousState) {
         await removeFromFavourites(accountID, details.id);
-        setIsFavorite(false);
       } else {
         await addToFavourites(accountID, details.id);
-        setIsFavorite(true);
       }
     } catch (err) {
+      // Rollback to previous state on failure
+      setIsFavorite(previousState);
       const msg = err?.response?.data?.status_message || 'Failed to update favourites.';
       setFavError(msg);
       console.error('Favourite toggle error:', err);
-    } finally {
-      setIsFavLoading(false);
     }
   };
 
@@ -171,17 +174,16 @@ function Detail() {
             </button>
             <button
               onClick={toggleFavorite}
-              disabled={isFavLoading}
-              className={`flex items-center gap-2 px-6 py-3 rounded-[12px] border font-semibold transition cursor-pointer active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed
-                ${isFavorite
-                  ? 'bg-red-500/10 border-red-500/40 text-red-400 hover:bg-red-500/20'
-                  : 'bg-white/5 border-slate-700 text-slate-200 hover:bg-white/10 hover:border-slate-500'
-                }`}
+              className={`flex items-center gap-2 px-6 py-3 rounded-[12px] border font-semibold transition-all duration-200 cursor-pointer active:scale-[0.96] hover:scale-[1.02] ${
+                isFavorite
+                  ? 'bg-red-500/20 border-red-500/50 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:bg-red-500/30 hover:border-red-400'
+                  : 'bg-white/5 border-slate-700 text-slate-200 hover:bg-white/10 hover:border-slate-500 hover:text-white'
+              }`}
             >
-              {isFavLoading
-                ? <span className="flex items-center gap-2"><span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> Updating...</span>
-                : isFavorite ? '❤️ In Favourites' : '🤍 Add to Favourites'
-              }
+              <span className={`transition-transform duration-200 inline-block ${isFavorite ? 'scale-110' : 'scale-100'}`}>
+                {isFavorite ? '❤️' : '🤍'}
+              </span>
+              <span>{isFavorite ? 'In Favourites' : 'Add to Favourites'}</span>
             </button>
             {favError && (
               <p className="w-full text-[13px] text-red-400 mt-[-8px]">{favError}</p>
