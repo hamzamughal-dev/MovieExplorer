@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import debounce from 'lodash.debounce';
 
 import { getMovies, searchMovies } from '../api/api';
 import useStore from '../store/authStore';
@@ -12,6 +13,19 @@ function Movies() {
     const isLoggedIn = !!sessionID;
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    const updateSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearchQuery(value);
+            }, 500),
+        []
+    );
+
+    useEffect(() => {
+        return () => updateSearch.cancel()
+    }, [updateSearch]);
 
     const {
         data: movieData,
@@ -29,7 +43,7 @@ function Movies() {
             const totalPages = lastPage?.data?.total_pages;
             return totalPages && currentPage < totalPages ? currentPage + 1 : undefined;
         },
-        enabled: isLoggedIn && !searchQuery.trim(),
+        enabled: isLoggedIn && !debouncedSearchQuery.trim(),
         staleTime: 1000 * 60 * 5
     });
 
@@ -38,9 +52,9 @@ function Movies() {
         isLoading: isSearching,
         error: searchError
     } = useQuery({
-        queryKey: ['searchMovies', searchQuery.trim()],
-        queryFn: () => searchMovies(searchQuery.trim()),
-        enabled: isLoggedIn && searchQuery.trim().length > 0,
+        queryKey: ['searchMovies', debouncedSearchQuery.trim()],
+        queryFn: () => searchMovies(debouncedSearchQuery.trim()),
+        enabled: isLoggedIn && debouncedSearchQuery.trim().length > 0,
         staleTime: 1000 * 60 * 2
     });
 
@@ -51,7 +65,7 @@ function Movies() {
 
     const observer = useRef();
     const lastMovieElement = useCallback(node => {
-        if (isLoading || isFetchingNextPage || searchQuery.trim()) return;
+        if (isLoading || isFetchingNextPage || debouncedSearchQuery.trim()) return;
         if (observer.current) observer.current.disconnect();
 
         observer.current = new IntersectionObserver(entries => {
@@ -61,17 +75,20 @@ function Movies() {
         });
 
         if (node) observer.current.observe(node);
-    }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, searchQuery]);
+    }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, debouncedSearchQuery]);
 
     const handleClearSearch = () => {
+        updateSearch.cancel();
         setSearchQuery('');
+        setDebouncedSearchQuery('');
     };
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
     }
 
-    const isSearchMode = searchQuery.trim().length > 0;
+    const hasSearchInput = searchQuery.trim().length > 0;
+    const isSearchMode = debouncedSearchQuery.trim().length > 0;
     const displayMovies = isSearchMode ? searchResults : movies;
 
     return (
@@ -79,10 +96,10 @@ function Movies() {
             <div className="max-w-7xl mx-auto px-2 md:px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-[32px] md:text-[38px] font-extrabold bg-gradient-to-r from-[#01b4e4] to-[#90cea1] bg-clip-text text-transparent mb-[2px] w-fit">
-                        {isSearchMode ? 'Search Results' : 'Trending'}
+                        {hasSearchInput ? 'Search Results' : 'Trending'}
                     </h1>
                     <p className="text-slate-400 text-[14px] md:text-[15px]">
-                        {isSearchMode ? `Results for "${searchQuery}"` : 'Discover trending movies worldwide'}
+                        {hasSearchInput ? `Results for "${searchQuery}"` : 'Discover trending movies worldwide'}
                     </p>
                 </div>
 
@@ -96,7 +113,11 @@ function Movies() {
                         id="movies-search"
                         type="text"
                         value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setSearchQuery(value);
+                            updateSearch(value);
+                        }}
                         placeholder="Search for movies, actors, or genres..."
                         className="pl-10 pr-8 py-[9px] w-[260px] md:w-[320px] rounded-full bg-[#181a20]/80 border border-white/10 text-white placeholder-slate-500 text-[13px] outline-none focus:border-[#01b4e4] focus:ring-1 focus:ring-[#01b4e4]/30 transition-all shadow-inner"
                     />
@@ -124,7 +145,7 @@ function Movies() {
                 <>
                     {displayMovies.length === 0 && isSearchMode && (
                         <div className="text-center p-[40px] bg-white/5 border border-white/10 rounded-[16px] text-slate-400 text-[15px]">
-                            No results for "{searchQuery}"
+                            No results for "{debouncedSearchQuery}"
                         </div>
                     )}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-[24px]">
