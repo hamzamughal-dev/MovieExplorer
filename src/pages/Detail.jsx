@@ -4,7 +4,7 @@ import Loader from '../components/Loader';
 import Button from '../components/Button';
 
 import { formatCurrency, formatRuntime, isValid } from '../utils/index';
-import { IMAGE_BASE, IMAGE_BASE_ORIGINAL } from '../utils/constants';
+import { BASE_IMG, BASE_IMG_ORIGINAL } from '../constants/constants';
 
 import { useDetail } from '../hooks/useDetail';
 
@@ -51,7 +51,7 @@ function Detail() {
       {isValid(details.backdrop_path) && (
         <div className="absolute top-0 left-0 w-full h-[320px] md:h-[480px] overflow-hidden pointer-events-none z-0">
           <img
-            src={`${IMAGE_BASE_ORIGINAL}${details.backdrop_path}`}
+            src={`${BASE_IMG_ORIGINAL}${details.backdrop_path}`}
             alt=""
             className="w-full h-full object-cover opacity-25"
           />
@@ -65,7 +65,7 @@ function Detail() {
           <div className="relative w-[230px] md:w-full aspect-[2/3] rounded-[16px] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.8)] border border-[#01b4e4]/20 bg-[#181a20]">
             {isValid(details.poster_path) ? (
               <img
-                src={`${IMAGE_BASE}${details.poster_path}`}
+                src={`${BASE_IMG}${details.poster_path}`}
                 alt={details.title}
                 className="w-full h-full object-cover"
               />

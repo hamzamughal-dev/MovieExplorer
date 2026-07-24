@@ -8,7 +8,8 @@ import Button from '../components/Button';
 
 import { useSignup } from '../hooks/useSignup';
 import { UserIcon, MailIcon, LockIcon, ShieldIcon, LogoIcon } from '../components/icons';
-import loginPoster from '../assets/images/login-poster.jpg';
+import { LOGIN_POSTER } from '../constants/constants';
+
 
 const signupFields = [
     { name: 'userName', label: 'Username', type: 'text', placeholder: 'Choose a username', icon: <UserIcon size={15} /> },
@@ -39,7 +40,7 @@ function Signup() {
         <div className="h-screen w-full flex overflow-hidden bg-[#0a0d14]">
             <div className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden">
                 <img
-                    src={loginPoster}
+                    src={LOGIN_POSTER}
                     alt="Poster"
                     className="absolute inset-0 w-full h-full object-cover object-top"
                 />

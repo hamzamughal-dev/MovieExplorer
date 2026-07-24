@@ -1,13 +1,8 @@
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { IMAGE_BASE } from '../utils/constants';
-
-function getRatingColor(rating) {
-    if (rating >= 7) return { text: 'text-green-400', border: 'border-green-400/20' };
-    if (rating >= 5) return { text: 'text-yellow-400', border: 'border-yellow-400/20' };
-    return { text: 'text-red-400', border: 'border-red-400/20' };
-}
+import { BASE_IMG } from '../constants/constants';
+import { getRatingColor, formatRating } from '../utils/index';
 
 function MovieCard({ movie }) {
     const [isHovered, setIsHovered] = useState(false);
@@ -18,8 +13,7 @@ function MovieCard({ movie }) {
         navigate(`/detail/${movie.id}`);
     }
 
-    const voteAverage = movie.vote_average;
-    const ratingText = voteAverage && voteAverage > 0 ? voteAverage.toFixed(1) : 'N/A';
+    const ratingText = formatRating(movie.vote_average);
 
     return (
         <div
@@ -39,7 +33,7 @@ function MovieCard({ movie }) {
             <div className="relative overflow-hidden aspect-[2/3]">
                 {movie.poster_path ? (
                     <img
-                        src={`${IMAGE_BASE}${movie.poster_path}`}
+                        src={`${BASE_IMG}${movie.poster_path}`}
                         alt={movie.title || movie.name}
                         className="w-full h-full object-cover block transition-transform duration-500 hover:scale-105"
                     />

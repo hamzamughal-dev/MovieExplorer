@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from './Button';
-import { LogoIcon } from './icons';
+import { LogoIcon, ProfileIcon } from './icons';
 import useStore from '../store/authStore';
-import { LOGIN_USERNAME } from '../utils/constants';
+
 
 function Navbar() {
     const navigate = useNavigate();
@@ -68,12 +68,9 @@ function Navbar() {
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#181a20]/60 border border-white/10 hover:border-[#01b4e4]/50 hover:bg-[#181a20]/80 transition cursor-pointer select-none"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#01b4e4] to-[#90cea1] flex items-center justify-center text-slate-900 font-bold text-sm uppercase">
-                                        {LOGIN_USERNAME ? LOGIN_USERNAME.charAt(0) : 'U'}
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#01b4e4] to-[#90cea1] flex items-center justify-center text-slate-900">
+                                        <ProfileIcon className="text-slate-900" size={20} />
                                     </div>
-                                    <span className="text-sm font-semibold text-slate-200">
-                                        {LOGIN_USERNAME}
-                                    </span>
                                     <svg className={`w-4 h-4 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
 
@@ -124,11 +121,11 @@ function Navbar() {
             {isLoggedIn && isMobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-[#242934] border-b border-white/10 shadow-2xl p-6 flex flex-col gap-4 z-40">
                     <div className="flex items-center gap-3 pb-3 border-b border-white/5">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-r from-[#01b4e4] to-[#90cea1] flex items-center justify-center text-slate-900 font-bold text-sm uppercase">
-                            {LOGIN_USERNAME?.charAt(0) ?? 'U'}
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-r from-[#01b4e4] to-[#90cea1] flex items-center justify-center text-slate-900">
+                            <ProfileIcon className="text-slate-900" size={20} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-semibold text-white">{LOGIN_USERNAME}</span>
+                            <span className="text-sm font-semibold text-white">Profile</span>
                             <span className="text-xs text-slate-400">Logged In</span>
                         </div>
                     </div>

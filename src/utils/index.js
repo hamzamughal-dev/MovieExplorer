@@ -30,3 +30,18 @@ export const isValid = (val) => {
 
     return true;
 };
+
+export const getRatingColor = (rating) => {
+    if (rating >= 7) return { text: 'text-green-400', border: 'border-green-400/20' };
+    if (rating >= 5) return { text: 'text-yellow-400', border: 'border-yellow-400/20' };
+    return { text: 'text-red-400', border: 'border-red-400/20' };
+};
+
+export const formatRating = (voteAverage, digits = 1) => {
+    if (voteAverage === null || voteAverage === undefined || Number.isNaN(Number(voteAverage)) || Number(voteAverage) <= 0) {
+        return 'N/A';
+    }
+    return Number(voteAverage).toFixed(digits);
+};
+
+

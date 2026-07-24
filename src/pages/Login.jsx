@@ -9,7 +9,7 @@ import Button from '../components/Button';
 import { useLogin } from '../hooks/useLogin';
 import { UserIcon, LockIcon, FilmIcon, StarIcon, CalendarIcon, SearchIcon, LogoIcon } from '../components/icons';
 
-import loginPoster from '../assets/images/login-poster.jpg';
+import { LOGIN_POSTER } from '../constants/constants';
 
 const features = [
     { icon: <FilmIcon size={18} />, text: 'Curated movie collections' },
@@ -40,7 +40,7 @@ function Login() {
         <div className="min-h-screen w-full flex overflow-hidden bg-[#0a0d14]">
             <div className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden">
                 <img
-                    src={loginPoster}
+                    src={LOGIN_POSTER}
                     alt="Poster"
                     className="absolute inset-0 w-full h-full object-cover object-center"
                 />

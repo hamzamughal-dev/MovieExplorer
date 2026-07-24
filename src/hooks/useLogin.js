@@ -3,11 +3,12 @@ import { toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 
 import useStore from '../store/authStore';
-import { getSessionID, getAccountDetails } from '../api/api';
-import { LOGIN_USERNAME, LOGIN_PASSWORD } from '../utils/constants';
+import { getSessionID, getAccountDetails, getRequestToken, getLoginDetails } from '../api/api';
+
 
 import { loginSchema } from '../schemas/loginSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { data } from 'react-router-dom';
 
 export function useLogin() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -25,40 +26,41 @@ export function useLogin() {
         isPending: isLoading
     } = useMutation({
         mutationKey: ['login'],
-        mutationFn: async () => {
-            const response = await getSessionID();
-            const guestSessionID = response.data?.guest_session_id;
+        mutationFn: async (data) => {
 
-            if (!guestSessionID) {
-                throw new Error("Failed to generate guest session ID");
+            const requestToken = await getRequestToken();
+            const requestTokenValue = requestToken.data?.request_token;
+
+            await getLoginDetails(data.userName, data.password, requestTokenValue);
+            const sessionResponse = await getSessionID(requestTokenValue);
+            const sessionIdValue = sessionResponse.data?.session_id;
+
+            if (!sessionIdValue) {
+                throw new Error("Failed to generate session ID");
             }
 
             let accountID = null;
             try {
-                const accountDetails = await getAccountDetails();
+                const accountDetails = await getAccountDetails(sessionIdValue);
                 accountID = accountDetails?.id ?? null;
             } catch (error) {
                 console.error("Could not fetch account details:", error);
             }
 
-            return { guestSessionID, accountID };
+            return { sessionID: sessionIdValue, accountID };
         },
-        onSuccess: ({ guestSessionID, accountID }) => {
-            setSessionID(guestSessionID);
+        onSuccess: ({ sessionID, accountID }) => {
+            setSessionID(sessionID);
             if (accountID) setAccountID(accountID);
         },
         onError: (error) => {
-            toast.error(error.message, { theme: "dark" });
+            toast.error("Invalid Credentials", { theme: "dark" });
             reset();
         }
     });
 
     const handleLogin = (data) => {
-        if (data.userName !== LOGIN_USERNAME || data.password !== LOGIN_PASSWORD) {
-            toast.error("Invalid Credentials", { theme: "dark" });
-            reset();
-            return;
-        }
+
         login(data);
     };
 
