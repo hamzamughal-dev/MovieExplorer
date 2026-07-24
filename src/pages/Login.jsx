@@ -1,19 +1,26 @@
-import { Navigate, Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import loginPoster from '../assets/images/login-poster.jpg';
 import Loader from '../components/Loader';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { UserIcon, LockIcon, FilmIcon, StarIcon, CalendarIcon, SearchIcon, LogoIcon } from '../components/icons';
+
 import { useLogin } from '../hooks/useLogin';
+import { UserIcon, LockIcon, FilmIcon, StarIcon, CalendarIcon, SearchIcon, LogoIcon } from '../components/icons';
+
+import loginPoster from '../assets/images/login-poster.jpg';
 
 const features = [
     { icon: <FilmIcon size={18} />, text: 'Curated movie collections' },
     { icon: <StarIcon size={18} />, text: 'Rate & review films' },
     { icon: <CalendarIcon size={18} />, text: 'Build your watchlist' },
     { icon: <SearchIcon size={18} />, text: 'Advanced search & filters' },
+];
+
+const loginFields = [
+    { name: 'userName', label: 'Username', type: 'text', placeholder: 'e.g. john_doe', icon: <UserIcon /> },
+    {name: 'password', label: 'Password', type: 'password', placeholder: 'Enter your password', icon: <LockIcon />,rightSlot: (<button type="button" className="text-[11px] text-[#01b4e4] hover:text-[#90cea1] transition-colors duration-200 font-medium cursor-pointer">Forgot password?</button>),},
 ];
 
 function Login() {
@@ -31,14 +38,13 @@ function Login() {
 
     return (
         <div className="min-h-screen w-full flex overflow-hidden bg-[#0a0d14]">
-            <div
-                className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden"
-                style={{
-                    backgroundImage: `linear-gradient(135deg, rgba(1,11,26,0.92) 0%, rgba(1,22,45,0.85) 50%, rgba(1,50,80,0.7) 100%), url(${loginPoster})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                }}
-            >
+            <div className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden">
+                <img
+                    src={loginPoster}
+                    alt="Poster"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#010b1a]/92 via-[#01162d]/85 to-[#013250]/70" />
                 <div className="absolute top-[-80px] left-[-80px] w-[400px] h-[400px] rounded-full bg-[#01b4e4]/10 blur-[120px] pointer-events-none" />
                 <div className="absolute bottom-[-60px] right-[-60px] w-[350px] h-[350px] rounded-full bg-[#90cea1]/8 blur-[100px] pointer-events-none" />
 
@@ -87,28 +93,18 @@ function Login() {
                     </div>
 
                     <form className="flex flex-col gap-5" onSubmit={handleSubmit(handleLogin)}>
-                        <Input
-                            {...register("userName", { required: "Username is required" })}
-                            label="Username"
-                            type="text"
-                            placeholder="e.g. john_doe"
-                            error={errors.userName}
-                            icon={<UserIcon />}
-                        />
-
-                        <Input
-                            {...register("password", { required: "Password is required" })}
-                            label="Password"
-                            type="password"
-                            placeholder="Enter your password"
-                            error={errors.password}
-                            rightSlot={
-                                <button type="button" className="text-[11px] text-[#01b4e4] hover:text-[#90cea1] transition-colors duration-200 font-medium cursor-pointer">
-                                    Forgot password?
-                                </button>
-                            }
-                            icon={<LockIcon />}
-                        />
+                        {loginFields.map((field) => (
+                            <Input
+                                key={field.name}
+                                {...register(field.name)}
+                                label={field.label}
+                                type={field.type}
+                                placeholder={field.placeholder}
+                                error={errors[field.name]}
+                                icon={field.icon}
+                                rightSlot={field.rightSlot}
+                            />
+                        ))}
 
                         <Button type="submit" className="mt-2">Sign In →</Button>
                     </form>

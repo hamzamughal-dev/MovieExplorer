@@ -1,12 +1,18 @@
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { useMutation } from '@tanstack/react-query';
+
 import useStore from '../store/authStore';
 import { getSessionID, getAccountDetails } from '../api/api';
 import { LOGIN_USERNAME, LOGIN_PASSWORD } from '../utils/constants';
 
+import { loginSchema } from '../schemas/loginSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 export function useLogin() {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+        resolver: zodResolver(loginSchema),
+    });
 
     const sessionID = useStore(state => state.sessionID);
     const setSessionID = useStore(state => state.setSessionID);
@@ -40,7 +46,6 @@ export function useLogin() {
         onSuccess: ({ guestSessionID, accountID }) => {
             setSessionID(guestSessionID);
             if (accountID) setAccountID(accountID);
-            toast.success("Logged in successfully!", { theme: "dark" });
         },
         onError: (error) => {
             toast.error(error.message, { theme: "dark" });

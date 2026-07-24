@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
+
 import useStore from '../store/authStore';
+
+import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema } from '../schemas/signupSchema';
 
 export function useSignup() {

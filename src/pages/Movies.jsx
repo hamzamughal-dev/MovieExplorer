@@ -1,8 +1,10 @@
 import { Navigate } from 'react-router-dom';
+
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
 import Input from '../components/Input';
 import Button from '../components/Button';
+
 import { useMovies } from '../hooks/useMovies';
 
 function Movies() {

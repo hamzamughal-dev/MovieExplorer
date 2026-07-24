@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
+
 import useStore from '../store/authStore';
+import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
 
 export function useDetail() {
     const sessionID = useStore((state) => state.sessionID);

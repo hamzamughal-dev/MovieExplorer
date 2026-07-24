@@ -1,9 +1,11 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import debounce from 'lodash.debounce';
-import { getMovies, searchMovies } from '../api/api';
+
 import useStore from '../store/authStore';
+import { getMovies, searchMovies } from '../api/api';
+
+import debounce from 'lodash.debounce';
 
 export function useMovies() {
     const sessionID = useStore(state => state.sessionID);

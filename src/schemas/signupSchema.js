@@ -17,10 +17,13 @@ export const signupSchema = z.object({
         .string()
         .min(1,"Password is required")
         .min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
+    confirmPassword: z
+        .string()
+        .min(1,"Confirm Password is required")
+        .min(8,"Password must be at least 8 characters"),
     gender: z.enum(["male", "female", "other"]),
 })
-    .refine((data) => data.password == data.confirmPassword, {
+    .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords do not match",
         path: ["confirmPassword"],
     });

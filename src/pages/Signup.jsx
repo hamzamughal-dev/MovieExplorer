@@ -2,13 +2,26 @@ import { Navigate, Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import loginPoster from '../assets/images/login-poster.jpg';
 import Loader from '../components/Loader';
 import Input from '../components/Input';
 import Button from '../components/Button';
-import { UserIcon, MailIcon, LockIcon, ShieldIcon, LogoIcon } from '../components/icons';
-import { useSignup } from '../hooks/useSignup';
 
+import { useSignup } from '../hooks/useSignup';
+import { UserIcon, MailIcon, LockIcon, ShieldIcon, LogoIcon } from '../components/icons';
+import loginPoster from '../assets/images/login-poster.jpg';
+
+const signupFields = [
+    { name: 'userName', label: 'Username', type: 'text', placeholder: 'Choose a username', icon: <UserIcon size={15} /> },
+    { name: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com', icon: <MailIcon size={15} /> },
+    { name: 'password', label: 'Password', type: 'password', placeholder: 'Min. 8 characters', icon: <LockIcon size={15} /> },
+    { name: 'confirmPassword', label: 'Confirm Password', type: 'password', placeholder: 'Re-enter your password', icon: <ShieldIcon size={15} /> },
+];
+
+const genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' }
+];
 function Signup() {
     const {
         register,
@@ -24,14 +37,13 @@ function Signup() {
 
     return (
         <div className="h-screen w-full flex overflow-hidden bg-[#0a0d14]">
-            <div
-                className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden"
-                style={{
-                    backgroundImage: `linear-gradient(135deg, rgba(1,11,26,0.93) 0%, rgba(1,25,50,0.88) 50%, rgba(1,55,85,0.72) 100%), url(${loginPoster})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center top',
-                }}
-            >
+            <div className="hidden lg:flex lg:w-[50%] relative flex-col gap-10 p-10 overflow-hidden">
+                <img
+                    src={loginPoster}
+                    alt="Poster"
+                    className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#010b1a]/93 via-[#011932]/88 to-[#013755]/72" />
                 <div className="absolute top-[-100px] right-[-100px] w-[450px] h-[450px] rounded-full bg-[#01b4e4]/8 blur-[140px] pointer-events-none" />
                 <div className="absolute bottom-[-80px] left-[-60px] w-[380px] h-[380px] rounded-full bg-[#90cea1]/6 blur-[120px] pointer-events-none" />
 
@@ -75,61 +87,34 @@ function Signup() {
                     </div>
 
                     <form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSignup)}>
-                        <Input
-                            {...register("userName")}
-                            label="Username"
-                            type="text"
-                            placeholder="Choose a username"
-                            error={errors.userName}
-                            icon={<UserIcon size={15} />}
-                        />
-
-                        <Input
-                            {...register("email")}
-                            label="Email"
-                            type="email"
-                            placeholder="you@example.com"
-                            error={errors.email}
-                            icon={<MailIcon size={15} />}
-                        />
-
-                        <Input
-                            {...register("password")}
-                            label="Password"
-                            type="password"
-                            placeholder="Min. 8 characters"
-                            error={errors.password}
-                            icon={<LockIcon size={15} />}
-                        />
-
-                        <Input
-                            {...register("confirmPassword")}
-                            label="Confirm Password"
-                            type="password"
-                            placeholder="Re-enter your password"
-                            error={errors.confirmPassword}
-                            icon={<ShieldIcon size={15} />}
-                        />
+                        {signupFields.map((field) => (
+                            <Input
+                                key={field.name}
+                                {...register(field.name)}
+                                label={field.label}
+                                type={field.type}
+                                placeholder={field.placeholder}
+                                error={errors[field.name]}
+                                icon={field.icon}
+                            />
+                        ))}
 
                         <div className="flex flex-col gap-2">
                             <label className="text-xs font-semibold text-slate-300 uppercase tracking-widest">Gender</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {['male', 'female', 'other'].map((option) => (
-                                    <label key={option} className="relative cursor-pointer">
+                            <div className="flex items-center gap-6 py-1">
+                                {genderOptions.map((option) => (
+                                    <label key={option.value} className="flex items-center gap-2 cursor-pointer text-sm text-slate-300 hover:text-white transition-colors">
                                         <input
                                             type="radio"
-                                            value={option}
+                                            value={option.value}
                                             {...register("gender")}
-                                            className="peer sr-only"
+                                            className="w-4 h-4 accent-[#01b4e4] cursor-pointer"
                                         />
-                                        <div className="py-2 px-3 bg-white/5 border border-white/10 rounded-xl text-center text-sm text-slate-400 capitalize transition-all duration-200 peer-checked:bg-[#01b4e4]/10 peer-checked:border-[#01b4e4]/50 peer-checked:text-[#01b4e4] hover:border-white/20 hover:text-slate-200">
-                                            {option === 'male' ? '♂ Male' : option === 'female' ? '♀ Female' : '⚧ Other'}
-                                        </div>
+                                        <span>{option.label}</span>
                                     </label>
                                 ))}
                             </div>
                         </div>
-
                         <Button type="submit" className="mt-1">Create Account →</Button>
                     </form>
 

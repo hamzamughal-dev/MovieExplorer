@@ -1,20 +1,34 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { LogoIcon } from './icons';
-import { useNavbar } from '../hooks/useNavbar';
+import useStore from '../store/authStore';
+import { LOGIN_USERNAME } from '../utils/constants';
 
 function Navbar() {
-    const {
-        isLoggedIn,
-        isMobileMenuOpen,
-        setIsMobileMenuOpen,
-        isDropdownOpen,
-        setIsDropdownOpen,
-        handleLogout,
-        navLinks,
-        isActive,
-        LOGIN_USERNAME
-    } = useNavbar();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const sessionID = useStore(state => state.sessionID);
+    const isLoggedIn = !!sessionID;
+    const setAccountID = useStore(state => state.setAccountID);
+    const setSessionID = useStore(state => state.setSessionID);
+
+    const handleLogout = () => {
+        setAccountID(0);
+        setSessionID("");
+        localStorage.removeItem("auth-storage");
+        navigate('/login');
+    };
+
+    const navLinks = [
+        { name: 'Movies', path: '/movies' },
+        { name: 'Favourites', path: '/favourite' }
+    ];
+
+    const isActive = (path) => location.pathname === path;
 
     return (
         <nav className="sticky top-0 bg-[#242934] border-b border-white/5 px-6 md:px-[40px] py-2.5 z-50">

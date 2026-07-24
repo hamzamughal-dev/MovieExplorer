@@ -1,8 +1,11 @@
 import { Navigate } from 'react-router-dom';
-import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
-import { IMAGE_BASE, IMAGE_BASE_ORIGINAL } from '../utils/constants';
+
 import Loader from '../components/Loader';
 import Button from '../components/Button';
+
+import { formatCurrency, formatRuntime, isValid } from '../utils/index';
+import { IMAGE_BASE, IMAGE_BASE_ORIGINAL } from '../utils/constants';
+
 import { useDetail } from '../hooks/useDetail';
 
 function Detail() {

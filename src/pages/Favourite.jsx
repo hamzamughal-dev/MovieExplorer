@@ -1,7 +1,8 @@
 import { Navigate } from 'react-router-dom';
+import { useFavourite } from '../hooks/useFavourite';
+
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
-import { useFavourite } from '../hooks/useFavourite';
 
 function Favourite() {
     const {
