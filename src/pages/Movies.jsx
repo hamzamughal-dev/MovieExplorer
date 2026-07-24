@@ -1,95 +1,29 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import debounce from 'lodash.debounce';
-
-import { getMovies, searchMovies } from '../api/api';
-import useStore from '../store/authStore';
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import { useMovies } from '../hooks/useMovies';
 
 function Movies() {
-    const sessionID = useStore(state => state.sessionID);
-    const isLoggedIn = !!sessionID;
-
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-
-    const updateSearch = useMemo(
-        () =>
-            debounce((value) => {
-                setDebouncedSearchQuery(value);
-            }, 500),
-        []
-    );
-
-    useEffect(() => {
-        return () => updateSearch.cancel()
-    }, [updateSearch]);
-
     const {
-        data: movieData,
-        fetchNextPage,
-        hasNextPage,
+        isLoggedIn,
+        searchQuery,
+        setSearchQuery,
+        updateSearch,
+        displayMovies,
         isLoading,
         isFetchingNextPage,
-        error
-    } = useInfiniteQuery({
-        queryKey: ['movies'],
-        queryFn: ({ pageParam = 1 }) => getMovies(pageParam),
-        initialPageParam: 1,
-        getNextPageParam: (lastPage, pages) => {
-            const currentPage = pages.length;
-            const totalPages = lastPage?.data?.total_pages;
-            return totalPages && currentPage < totalPages ? currentPage + 1 : undefined;
-        },
-        enabled: isLoggedIn && !debouncedSearchQuery.trim(),
-        staleTime: 1000 * 60 * 5
-    });
-
-    const {
-        data: searchData,
-        isLoading: isSearching,
-        error: searchError
-    } = useQuery({
-        queryKey: ['searchMovies', debouncedSearchQuery.trim()],
-        queryFn: () => searchMovies(debouncedSearchQuery.trim()),
-        enabled: isLoggedIn && debouncedSearchQuery.trim().length > 0,
-        staleTime: 1000 * 60 * 2
-    });
-
-    const movies = Array.from(
-        new Map(movieData?.pages.flatMap(p => p.data.results || []).map(m => [m.id, m])).values()
-    );
-    const searchResults = searchData?.data?.results ?? [];
-
-    const observer = useRef();
-    const lastMovieElement = useCallback(node => {
-        if (isLoading || isFetchingNextPage || debouncedSearchQuery.trim()) return;
-        if (observer.current) observer.current.disconnect();
-
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasNextPage) {
-                fetchNextPage();
-            }
-        });
-
-        if (node) observer.current.observe(node);
-    }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, debouncedSearchQuery]);
-
-    const handleClearSearch = () => {
-        updateSearch.cancel();
-        setSearchQuery('');
-        setDebouncedSearchQuery('');
-    };
+        error,
+        lastMovieElement,
+        handleClearSearch,
+        hasSearchInput,
+        isSearchMode
+    } = useMovies();
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
     }
-
-    const hasSearchInput = searchQuery.trim().length > 0;
-    const isSearchMode = debouncedSearchQuery.trim().length > 0;
-    const displayMovies = isSearchMode ? searchResults : movies;
 
     return (
         <div className="min-h-full bg-[#202731] text-white px-6 pt-5 pb-8">
@@ -103,71 +37,67 @@ function Movies() {
                     </p>
                 </div>
 
-                <div className="relative flex-shrink-0">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </span>
-                    <input
-                        id="movies-search"
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            setSearchQuery(value);
-                            updateSearch(value);
-                        }}
-                        placeholder="Search for movies, actors, or genres..."
-                        className="pl-10 pr-8 py-[9px] w-[260px] md:w-[320px] rounded-full bg-[#181a20]/80 border border-white/10 text-white placeholder-slate-500 text-[13px] outline-none focus:border-[#01b4e4] focus:ring-1 focus:ring-[#01b4e4]/30 transition-all shadow-inner"
-                    />
-                    {searchQuery && (
-                        <button
-                            onClick={handleClearSearch}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-[16px]"
-                        >
-                            ×
-                        </button>
-                    )}
-                </div>
+                <Input
+                    variant="search"
+                    id="movies-search"
+                    placeholder="Search for movies, actors, or genres..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchQuery(value);
+                        updateSearch(value);
+                    }}
+                    clearSlot={
+                        searchQuery ? (
+                            <Button
+                                variant="icon"
+                                onClick={handleClearSearch}
+                                aria-label="Clear search"
+                                className="text-slate-400 hover:text-white text-[16px] leading-none"
+                            >
+                                ×
+                            </Button>
+                        ) : null
+                    }
+                />
             </div>
 
             {isLoading && !isSearchMode && <Loader text="Fetching movies..." />}
-            {isSearching && <Loader text="Searching..." />}
+            {isLoading && isSearchMode && <Loader text="Searching movies..." />}
 
-            {(error || searchError) && !isLoading && !isSearching && (
+            {error && (
                 <div className="text-center p-[40px] bg-red-500/10 border border-red-500/30 rounded-[16px] text-red-400 text-[16px]">
-                    ⚠️ {error?.message || searchError?.message || 'Something went wrong.'}
+                    ⚠️ {error.message || 'Something went wrong while fetching movies.'}
                 </div>
             )}
 
-            {!isLoading && !isSearching && !error && !searchError && (
+            {!isLoading && !error && displayMovies.length === 0 && (
+                <div className="text-center p-[40px] bg-white/5 border border-white/10 rounded-[16px] text-slate-400 text-[16px]">
+                    {isSearchMode ? `No movies found matching "${searchQuery}".` : 'No movies found.'}
+                </div>
+            )}
+
+            {!isLoading && !error && displayMovies.length > 0 && (
                 <>
-                    {displayMovies.length === 0 && isSearchMode && (
-                        <div className="text-center p-[40px] bg-white/5 border border-white/10 rounded-[16px] text-slate-400 text-[15px]">
-                            No results for "{debouncedSearchQuery}"
-                        </div>
-                    )}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-[24px]">
-                        {displayMovies.map(movie => (
-                            <MovieCard key={movie.id} movie={movie} />
-                        ))}
+                        {displayMovies.map((movie, index) => {
+                            if (!isSearchMode && displayMovies.length === index + 1) {
+                                return (
+                                    <div ref={lastMovieElement} key={`${movie.id}-${index}`}>
+                                        <MovieCard movie={movie} />
+                                    </div>
+                                );
+                            }
+                            return <MovieCard key={`${movie.id}-${index}`} movie={movie} />;
+                        })}
                     </div>
-                </>
-            )}
 
-            {!isSearchMode && (
-                <div ref={lastMovieElement} className="w-full flex justify-center py-8">
                     {isFetchingNextPage && (
-                        <div className="flex items-center gap-3">
-                            <div className="w-[24px] h-[24px] rounded-full border-[3px] border-[#1e1e2e] border-t-[#01b4e4] animate-spin" />
-                            <p className="text-slate-400 text-[14px]">Loading more...</p>
+                        <div className="mt-8 flex justify-center">
+                            <Loader text="Loading more movies..." className="h-[100px]" />
                         </div>
                     )}
-                    {!hasNextPage && movies.length > 0 && (
-                        <p className="text-slate-500 text-[14px]">You've reached the end of the list.</p>
-                    )}
-                </div>
+                </>
             )}
         </div>
     );

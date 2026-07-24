@@ -1,31 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
-
-import { getFavourites } from '../api/api';
-import useStore from '../store/authStore';
-
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
-
+import { useFavourite } from '../hooks/useFavourite';
 
 function Favourite() {
-    const sessionID = useStore(state => state.sessionID);
-    const isLoggedIn = !!sessionID;
-    const accountID = useStore(state => state.accountID);
-
     const {
-        data: favouritesData,
+        isLoggedIn,
+        movies,
         isLoading,
         error
-    } = useQuery({
-        queryKey: ["favourites", accountID],
-        queryFn: () => getFavourites(accountID),
-        enabled: !!accountID,
-        staleTime: 5 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
-    });
-
-    const movies = favouritesData?.data?.results ?? [];
+    } = useFavourite();
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
@@ -33,7 +17,6 @@ function Favourite() {
 
     return (
         <div className="min-h-full bg-[#202731] text-white px-6 pt-5 pb-8">
-
             <div className="max-w-7xl mx-auto px-2 md:px-4 mb-6">
                 <h1 className="text-[32px] md:text-[38px] font-extrabold bg-gradient-to-r from-[#01b4e4] to-[#90cea1] bg-clip-text text-transparent mb-[2px] w-fit">
                     Favourites
@@ -71,4 +54,3 @@ function Favourite() {
 }
 
 export default Favourite;
-

@@ -1,8 +1,18 @@
 import axios from 'axios';
 import { BASE_URL, API_KEY, BEARER_TOKEN } from '../utils/constants';
 
+const ENDPOINTS = {
+    GUEST_SESSION: `${BASE_URL}/authentication/guest_session/new`,
+    ACCOUNT_DETAILS: `${BASE_URL}/account`,
+    TRENDING_MOVIES: `${BASE_URL}/trending/movie/day`,
+    MOVIE_DETAILS: (id) => `${BASE_URL}/movie/${id}`,
+    FAVORITE: (accID) => `${BASE_URL}/account/${accID}/favorite`,
+    FAVORITE_MOVIES: (accID) => `${BASE_URL}/account/${accID}/favorite/movies`,
+    SEARCH_MOVIES: `${BASE_URL}/search/movie`,
+};
+
 export const getSessionID = () => {
-    return axios.get(`${BASE_URL}/authentication/guest_session/new`, {
+    return axios.get(ENDPOINTS.GUEST_SESSION, {
         params: {
             api_key: API_KEY,
         },
@@ -10,7 +20,7 @@ export const getSessionID = () => {
 };
 
 export const getAccountDetails = async () => {
-    const response = await axios.get(`${BASE_URL}/account`, {
+    const response = await axios.get(ENDPOINTS.ACCOUNT_DETAILS, {
         headers: {
             Authorization: `Bearer ${BEARER_TOKEN}`,
             'Content-Type': 'application/json',
@@ -20,7 +30,7 @@ export const getAccountDetails = async () => {
 };
 
 export const getMovies = (page = 1) => {
-    return axios.get(`${BASE_URL}/trending/movie/day`, {
+    return axios.get(ENDPOINTS.TRENDING_MOVIES, {
         params: {
             api_key: API_KEY,
             language: "en-US",
@@ -30,7 +40,7 @@ export const getMovies = (page = 1) => {
 };
 
 export const getDetails = (id) => {
-    return axios.get(`${BASE_URL}/movie/${id}`, {
+    return axios.get(ENDPOINTS.MOVIE_DETAILS(id), {
         params: {
             api_key: API_KEY,
             language: "en-US",
@@ -40,7 +50,7 @@ export const getDetails = (id) => {
 
 export const addToFavourites = (accID, movieID) => {
     return axios.post(
-        `${BASE_URL}/account/${accID}/favorite`,
+        ENDPOINTS.FAVORITE(accID),
         {
             media_id: Number(movieID),
             media_type: "movie",
@@ -57,7 +67,7 @@ export const addToFavourites = (accID, movieID) => {
 
 export const removeFromFavourites = (accID, movieID) => {
     return axios.post(
-        `${BASE_URL}/account/${accID}/favorite`,
+        ENDPOINTS.FAVORITE(accID),
         {
             media_id: Number(movieID),
             media_type: "movie",
@@ -73,7 +83,7 @@ export const removeFromFavourites = (accID, movieID) => {
 };
 
 export const getFavourites = (accID, page = 1) => {
-    return axios.get(`${BASE_URL}/account/${accID}/favorite/movies`, {
+    return axios.get(ENDPOINTS.FAVORITE_MOVIES(accID), {
         headers: {
             Authorization: `Bearer ${BEARER_TOKEN}`,
             'Content-Type': 'application/json',
@@ -86,7 +96,7 @@ export const getFavourites = (accID, page = 1) => {
 };
 
 export const searchMovies = (query, page = 1) => {
-    return axios.get(`${BASE_URL}/search/movie`, {
+    return axios.get(ENDPOINTS.SEARCH_MOVIES, {
         headers: {
             Authorization: `Bearer ${BEARER_TOKEN}`,
             accept: "application/json",

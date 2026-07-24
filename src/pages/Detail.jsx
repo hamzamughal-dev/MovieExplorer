@@ -1,98 +1,22 @@
-import { useState } from 'react';
-import { Navigate, useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
-import useStore from '../store/authStore';
+import { Navigate } from 'react-router-dom';
 import { formatCurrency, formatRuntime, isValid } from '../utils/helper';
 import { IMAGE_BASE, IMAGE_BASE_ORIGINAL } from '../utils/constants';
-
 import Loader from '../components/Loader';
+import Button from '../components/Button';
+import { useDetail } from '../hooks/useDetail';
 
 function Detail() {
-  const sessionID = useStore((state) => state.sessionID);
-  const isLoggedIn = !!sessionID;
-  const accountID = useStore((state) => state.accountID);
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const [favError, setFavError] = useState(null);
-
   const {
-    data: details,
-    isLoading: isDetailsLoading,
-    error: detailsError,
-  } = useQuery({
-    queryKey: ['movieDetails', id],
-    queryFn: async () => {
-      const res = await getDetails(id);
-      return res.data;
-    },
-    enabled: isLoggedIn && !!id,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const { data: favouritesData } = useQuery({
-    queryKey: ['favourites', accountID],
-    queryFn: () => getFavourites(accountID),
-    enabled: isLoggedIn && !!accountID,
-    staleTime: 1000 * 60 * 2,
-  });
-
-  const favouritesList = favouritesData?.data?.results || [];
-  const isFavorite = favouritesList.some((m) => Number(m.id) === Number(id));
-
-  const { mutate: toggleFavorite } = useMutation({
-    mutationKey: ['toggleFavorite', id],
-    mutationFn: async () => {
-      if (isFavorite) {
-        return await removeFromFavourites(accountID, id);
-      } else {
-        return await addToFavourites(accountID, id);
-      }
-    },
-    onMutate: async () => {
-      setFavError(null);
-      await queryClient.cancelQueries({ queryKey: ['favourites', accountID] });
-      const previousFavourites = queryClient.getQueryData(['favourites', accountID]);
-
-      queryClient.setQueryData(['favourites', accountID], (old) => {
-        if (!old?.data?.results) return old;
-        const currentList = old.data.results;
-        const alreadyFav = currentList.some((m) => Number(m.id) === Number(id));
-
-        const updatedList = alreadyFav
-          ? currentList.filter((m) => Number(m.id) !== Number(id))
-          : [...currentList, { id: Number(id), title: details?.title, poster_path: details?.poster_path }];
-
-        return {
-          ...old,
-          data: {
-            ...old.data,
-            results: updatedList,
-          },
-        };
-      });
-
-      return { previousFavourites };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousFavourites) {
-        queryClient.setQueryData(['favourites', accountID], context.previousFavourites);
-      }
-      const msg = err?.response?.data?.status_message || 'Failed to update favourites.';
-      setFavError(msg);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['favourites', accountID] });
-    },
-  });
-
-  const handleWatchNow = () => {
-    if (!details) return;
-    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(details.title + ' trailer')}`, '_blank');
-  };
+    isLoggedIn,
+    details,
+    isDetailsLoading,
+    detailsError,
+    isFavorite,
+    toggleFavorite,
+    favError,
+    handleWatchNow,
+    navigate
+  } = useDetail();
 
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
@@ -108,12 +32,13 @@ function Detail() {
         <div className="text-center p-[40px] bg-red-500/10 border border-red-500/30 rounded-[16px] text-red-400 text-[16px] max-w-md">
           ⚠️ {detailsError?.message || 'Movie details not found.'}
         </div>
-        <button
+        <Button
+          variant="primary"
           onClick={() => navigate('/movies')}
-          className="mt-6 px-5 py-2.5 bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-[8px] font-semibold text-slate-900 hover:opacity-90 transition"
+          className="mt-6 rounded-[8px] text-sm"
         >
           Go Back to Movies
-        </button>
+        </Button>
       </div>
     );
   }
@@ -178,12 +103,13 @@ function Detail() {
           )}
 
           <div className="flex flex-wrap gap-4 mb-6">
-            <button
+            <Button
+              variant="primary"
               onClick={handleWatchNow}
-              className="flex items-center gap-2 px-6 py-3 rounded-[12px] bg-gradient-to-r from-[#01b4e4] to-[#90cea1] text-slate-900 font-bold hover:shadow-[0_0_20px_rgba(1,180,228,0.4)] hover:scale-[1.02] active:scale-[0.98] transition cursor-pointer"
+              className="px-6 py-3 rounded-[12px] hover:scale-[1.02] active:scale-[0.98]"
             >
               ▶️ Watch Now
-            </button>
+            </Button>
             <button
               onClick={() => toggleFavorite()}
               className={`flex items-center gap-2 px-6 py-3 rounded-[12px] border font-semibold transition-all duration-200 cursor-pointer active:scale-[0.96] hover:scale-[1.02] ${isFavorite

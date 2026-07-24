@@ -1,4 +1,3 @@
-import React from 'react';
 
 const Loader = ({ text = "Loading...", className = "h-[300px]" }) => {
     return (

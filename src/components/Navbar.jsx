@@ -1,45 +1,30 @@
-import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import Logo from './Logo'
-import useStore from '../store/authStore'
-import { LOGIN_USERNAME } from '../utils/constants'
+import { Link } from 'react-router-dom';
+import Button from './Button';
+import { LogoIcon } from './icons';
+import { useNavbar } from '../hooks/useNavbar';
 
 function Navbar() {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-    const sessionID = useStore(state => state.sessionID)
-    const isLoggedIn = !!sessionID
-    const setAccountID = useStore(state => state.setAccountID)
-    const setSessionID = useStore(state => state.setSessionID)
-
-    const handleLogout = () => {
-        setAccountID(0)
-        setSessionID("")
-        localStorage.removeItem("auth-storage")
-        navigate('/login')
-    }
-
-    const navLinks = [
-        { name: 'Movies', path: '/movies' },
-        { name: 'Favourites', path: '/favourite' }
-    ]
-
-    const isActive = (path) => location.pathname === path
+    const {
+        isLoggedIn,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+        isDropdownOpen,
+        setIsDropdownOpen,
+        handleLogout,
+        navLinks,
+        isActive,
+        LOGIN_USERNAME
+    } = useNavbar();
 
     return (
         <nav className="sticky top-0 bg-[#242934] border-b border-white/5 px-6 md:px-[40px] py-2.5 z-50">
             <div className="relative flex items-center justify-between max-w-7xl mx-auto">
-
-
                 <Link to={isLoggedIn ? "/movies" : "/login"} className="flex items-center gap-2.5 flex-shrink-0 group">
-                    <Logo className="w-[42px] h-[42px] cursor-pointer transition-transform duration-300 group-hover:scale-105" />
+                    <LogoIcon className="w-[42px] h-[42px] cursor-pointer transition-transform duration-300 group-hover:scale-105" />
                     <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-[#01b4e4] to-[#90cea1] bg-clip-text text-transparent tracking-wide select-none">
                         Movie Explorer
                     </span>
                 </Link>
-
 
                 {isLoggedIn && (
                     <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-6">
@@ -61,11 +46,9 @@ function Navbar() {
                     </div>
                 )}
 
-
                 <div className="flex items-center gap-3 flex-shrink-0">
                     {isLoggedIn ? (
                         <>
-
                             <div className="relative hidden md:block">
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -87,20 +70,19 @@ function Navbar() {
                                             onClick={() => setIsDropdownOpen(false)}
                                         />
                                         <div className="absolute right-0 mt-2 w-48 bg-[#181a20] border border-white/10 rounded-[12px] shadow-2xl py-1.5 z-20">
-                                            <button
+                                            <Button
+                                                variant="danger"
                                                 onClick={() => {
                                                     setIsDropdownOpen(false);
                                                     handleLogout();
                                                 }}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 font-semibold transition cursor-pointer rounded-[8px]"
                                             >
                                                 Logout
-                                            </button>
+                                            </Button>
                                         </div>
                                     </>
                                 )}
                             </div>
-
 
                             <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -115,14 +97,15 @@ function Navbar() {
                             </button>
                         </>
                     ) : (
-
-                        <button className="bg-gradient-to-r from-[#01b4e4] to-[#90cea1] text-slate-900 rounded-[50px] px-5 py-2 text-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(1,180,228,0.4)] active:translate-y-0 font-semibold">
+                        <Button
+                            variant="primary"
+                            className="rounded-[50px] px-5 py-2 text-sm hover:scale-105 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(1,180,228,0.4)]"
+                        >
                             Signup
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>
-
 
             {isLoggedIn && isMobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-[#242934] border-b border-white/10 shadow-2xl p-6 flex flex-col gap-4 z-40">
@@ -146,19 +129,20 @@ function Navbar() {
                             {link.name}
                         </Link>
                     ))}
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => {
                             setIsMobileMenuOpen(false);
                             handleLogout();
                         }}
-                        className="bg-gradient-to-r from-[#01b4e4] to-[#90cea1] rounded-[50px] py-2.5 w-full text-center cursor-pointer transition-all duration-300 font-semibold text-slate-900 mt-2"
+                        className="rounded-[50px] py-2.5 w-full mt-2"
                     >
                         Logout
-                    </button>
+                    </Button>
                 </div>
             )}
         </nav>
-    )
+    );
 }
 
-export default Navbar
+export default Navbar;
