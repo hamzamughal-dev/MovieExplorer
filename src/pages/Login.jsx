@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,6 +9,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 
 import { useLogin } from '../hooks/useLogin';
+import { loginSchema } from '../schemas/loginSchema';
 import { UserIcon, LockIcon, FilmIcon, StarIcon, CalendarIcon, SearchIcon, LogoIcon } from '../components/icons';
 
 import { LOGIN_POSTER } from '../constants/constants';
@@ -20,18 +23,28 @@ const features = [
 
 const loginFields = [
     { name: 'userName', label: 'Username', type: 'text', placeholder: 'e.g. john_doe', icon: <UserIcon /> },
-    {name: 'password', label: 'Password', type: 'password', placeholder: 'Enter your password', icon: <LockIcon />,rightSlot: (<button type="button" className="text-[11px] text-[#01b4e4] hover:text-[#90cea1] transition-colors duration-200 font-medium cursor-pointer">Forgot password?</button>),},
+    { name: 'password', label: 'Password', type: 'password', placeholder: 'Enter your password', icon: <LockIcon />, rightSlot: (<button type="button" className="text-[11px] text-[#01b4e4] hover:text-[#90cea1] transition-colors duration-200 font-medium cursor-pointer">Forgot password?</button>), },
 ];
 
 function Login() {
     const {
         register,
         handleSubmit,
-        errors,
+        formState: { errors },
+        reset
+    } = useForm({
+        resolver: zodResolver(loginSchema),
+    });
+
+    const {
         isLoggedIn,
         isLoading,
         handleLogin
     } = useLogin();
+
+    const onSubmit = (data) => {
+        handleLogin(data, () => reset());
+    };
 
     if (isLoggedIn) return <Navigate to="/movies" replace />;
     if (isLoading) return <Loader text="Logging in..." className="min-h-screen bg-[#0a0d14]" />;
@@ -92,7 +105,7 @@ function Login() {
                         <p className="text-slate-400 text-sm">Sign in to your account to continue.</p>
                     </div>
 
-                    <form className="flex flex-col gap-5" onSubmit={handleSubmit(handleLogin)}>
+                    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
                         {loginFields.map((field) => (
                             <Input
                                 key={field.name}
@@ -106,7 +119,7 @@ function Login() {
                             />
                         ))}
 
-                        <Button type="submit" className="mt-2">Sign In →</Button>
+                        <Button type="submit" className="mt-2">Sign In</Button>
                     </form>
 
                     <div className="flex items-center gap-3 my-6">

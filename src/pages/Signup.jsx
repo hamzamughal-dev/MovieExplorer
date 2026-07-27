@@ -1,15 +1,18 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, Link } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Loader from '../components/Loader';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import useStore from '../store/authStore';
 
-import { useSignup } from '../hooks/useSignup';
+import { signupSchema } from '../schemas/signupSchema';
 import { UserIcon, MailIcon, LockIcon, ShieldIcon, LogoIcon } from '../components/icons';
 import { LOGIN_POSTER } from '../constants/constants';
-
 
 const signupFields = [
     { name: 'userName', label: 'Username', type: 'text', placeholder: 'Choose a username', icon: <UserIcon size={15} /> },
@@ -23,15 +26,28 @@ const genderOptions = [
     { value: 'female', label: 'Female' },
     { value: 'other', label: 'Other' }
 ];
+
 function Signup() {
+    const [isLoading, setIsLoading] = useState(false);
+    const sessionID = useStore(state => state.sessionID);
+    const isLoggedIn = !!sessionID;
+
     const {
         register,
         handleSubmit,
-        errors,
-        isLoading,
-        isLoggedIn,
-        handleSignup
-    } = useSignup();
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(signupSchema),
+        defaultValues: { gender: 'male' },
+    });
+
+    const onSubmit = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            toast.info("Registration demo: Please use your credentials on Login.", { theme: "dark" });
+        }, 1000);
+    };
 
     if (isLoggedIn) return <Navigate to="/movies" replace />;
     if (isLoading) return <Loader text="Creating account..." className="min-h-screen bg-[#0a0d14]" />;
@@ -87,7 +103,7 @@ function Signup() {
                         <p className="text-slate-400 text-sm">It's free and takes less than a minute.</p>
                     </div>
 
-                    <form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSignup)}>
+                    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
                         {signupFields.map((field) => (
                             <Input
                                 key={field.name}
@@ -116,7 +132,7 @@ function Signup() {
                                 ))}
                             </div>
                         </div>
-                        <Button type="submit" className="mt-1">Create Account →</Button>
+                        <Button type="submit" className="mt-1">Create Account</Button>
                     </form>
 
                     <div className="flex items-center gap-3 my-5">

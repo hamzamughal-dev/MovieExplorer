@@ -1,4 +1,6 @@
-import { Navigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
@@ -6,22 +8,69 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 
 import { useMovies } from '../hooks/useMovies';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 
 function Movies() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialQuery = searchParams.get('q') ?? '';
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(initialQuery);
+
+    const updateSearch = useMemo(
+        () =>
+            debounce((value) => {
+                setDebouncedSearchQuery(value);
+                setSearchParams(
+                    (prev) => {
+                        const next = new URLSearchParams(prev);
+                        if (value.trim()) {
+                            next.set('q', value.trim());
+                        } else {
+                            next.delete('q');
+                        }
+                        return next;
+                    },
+                    { replace: true }
+                );
+            }, 500),
+        [setSearchParams]
+    );
+
+    useEffect(() => {
+        return () => updateSearch.cancel();
+    }, [updateSearch]);
+
     const {
         isLoggedIn,
-        searchQuery,
-        setSearchQuery,
-        updateSearch,
         displayMovies,
         isLoading,
         isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
         error,
-        lastMovieElement,
-        handleClearSearch,
-        hasSearchInput,
         isSearchMode
-    } = useMovies();
+    } = useMovies(debouncedSearchQuery);
+
+    const lastMovieElement = useInfiniteScroll({
+        isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+        disabled: isSearchMode
+    });
+
+    const handleClearSearch = () => {
+        updateSearch.cancel();
+        setSearchQuery('');
+        setDebouncedSearchQuery('');
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete('q');
+            return next;
+        }, { replace: true });
+    };
+
+    const hasSearchInput = searchQuery.trim().length > 0;
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
@@ -106,3 +155,4 @@ function Movies() {
 }
 
 export default Movies;
+
