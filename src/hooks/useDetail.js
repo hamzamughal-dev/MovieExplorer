@@ -29,7 +29,7 @@ export function useDetail() {
         staleTime: 1000 * 60 * 5,
     });
 
-    const { data: favouritesData } = useQuery({
+    const { data: favouritesData, isFetching: isFavouritesFetching } = useQuery({
         queryKey: ['favourites', accountID],
         queryFn: () => getFavourites(accountID),
         enabled: isLoggedIn && !!accountID,
@@ -39,51 +39,31 @@ export function useDetail() {
     const favouritesList = favouritesData?.data?.results || [];
     const isFavorite = favouritesList.some((m) => Number(m.id) === Number(id));
 
-    const { mutate: toggleFavorite } = useMutation({
+    const { mutate: toggleFavorite, isPending: isMutationPending } = useMutation({
         mutationKey: ['toggleFavorite', id],
-        mutationFn: async () => {
+        mutationFn: () => {
             if (isFavorite) {
-                return await removeFromFavourites(accountID, id);
-            } else {
-                return await addToFavourites(accountID, id);
+                return removeFromFavourites(accountID, id);
             }
+
+            return addToFavourites(accountID, id);
         },
-        onMutate: async () => {
+        onMutate: () => {
             setFavError(null);
-            await queryClient.cancelQueries({ queryKey: ['favourites', accountID] });
-            const previousFavourites = queryClient.getQueryData(['favourites', accountID]);
-
-            queryClient.setQueryData(['favourites', accountID], (old) => {
-                if (!old?.data?.results) return old;
-                const currentList = old.data.results;
-                const alreadyFav = currentList.some((m) => Number(m.id) === Number(id));
-
-                const updatedList = alreadyFav
-                    ? currentList.filter((m) => Number(m.id) !== Number(id))
-                    : [...currentList, { id: Number(id), title: details?.title, poster_path: details?.poster_path }];
-
-                return {
-                    ...old,
-                    data: {
-                        ...old.data,
-                        results: updatedList,
-                    },
-                };
-            });
-
-            return { previousFavourites };
         },
-        onError: (err, variables, context) => {
-            if (context?.previousFavourites) {
-                queryClient.setQueryData(['favourites', accountID], context.previousFavourites);
-            }
+        onError: (err) => {
             const msg = err?.response?.data?.status_message || 'Failed to update favourites.';
             setFavError(msg);
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ['favourites', accountID] });
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['favourites', accountID]
+            });
         },
+        
     });
+
+    const isFavPending = isMutationPending || isFavouritesFetching;
 
     const handleWatchNow = () => {
         if (!details) return;
@@ -97,6 +77,7 @@ export function useDetail() {
         detailsError,
         isFavorite,
         toggleFavorite,
+        isFavPending,
         favError,
         handleWatchNow,
         navigate
