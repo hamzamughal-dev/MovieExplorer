@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import useAuth from './useAuth';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
-import { QUERY_CONFIG } from '../constants/queryConfig';
+import { REACT_QUERY_CONFIG } from '../constants/queryConfig';
 
 export function useDetail() {
     const { sessionID, accountID, isLoggedIn } = useAuth();
@@ -25,14 +25,14 @@ export function useDetail() {
             return res.data;
         },
         enabled: isLoggedIn && !!id,
-        staleTime: QUERY_CONFIG.DETAILS.staleTime,
+        staleTime: REACT_QUERY_CONFIG.DEFAULT.staleTime,
     });
 
     const { data: favouritesData, isFetching: isFavouritesFetching } = useQuery({
         queryKey: ['favourites', accountID],
         queryFn: () => getFavourites(accountID),
         enabled: isLoggedIn && !!accountID,
-        staleTime: QUERY_CONFIG.FAVOURITES.staleTime,
+        staleTime: REACT_QUERY_CONFIG.DEFAULT.staleTime,
     });
 
     const favouritesList = favouritesData?.data?.results || [];

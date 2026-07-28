@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import useAuth from './useAuth';
 import { getFavourites } from '../api/api';
-import { QUERY_CONFIG } from '../constants/queryConfig';
+import { REACT_QUERY_CONFIG } from '../constants/queryConfig';
 
 export function useFavourite() {
     const { isLoggedIn, accountID } = useAuth();
@@ -15,8 +15,8 @@ export function useFavourite() {
         queryKey: ["favourites", accountID],
         queryFn: () => getFavourites(accountID),
         enabled: !!accountID,
-        staleTime: QUERY_CONFIG.FAVOURITES.staleTime,
-        gcTime: QUERY_CONFIG.FAVOURITES.gcTime,
+        staleTime: REACT_QUERY_CONFIG.DEFAULT.staleTime,
+        gcTime: REACT_QUERY_CONFIG.DEFAULT.gcTime,
     });
 
     const movies = favouritesData?.data?.results ?? [];
