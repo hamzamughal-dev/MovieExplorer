@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { LogoIcon, ProfileIcon } from './icons';
-import useStore from '../store/authStore';
+import useAuth from '../hooks/useAuth';
 
 
 function Navbar() {
@@ -11,15 +11,10 @@ function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const sessionID = useStore(state => state.sessionID);
-    const isLoggedIn = !!sessionID;
-    const setAccountID = useStore(state => state.setAccountID);
-    const setSessionID = useStore(state => state.setSessionID);
+    const { isLoggedIn, logout } = useAuth();
 
     const handleLogout = () => {
-        setAccountID(0);
-        setSessionID("");
-        localStorage.removeItem("auth-storage");
+        logout();
         navigate('/login');
     };
 

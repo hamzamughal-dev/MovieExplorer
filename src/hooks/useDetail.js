@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import useStore from '../store/authStore';
+import useAuth from './useAuth';
 import { getDetails, addToFavourites, removeFromFavourites, getFavourites } from '../api/api';
+import { QUERY_CONFIG } from '../constants/queryConfig';
 
 export function useDetail() {
-    const sessionID = useStore((state) => state.sessionID);
-    const isLoggedIn = !!sessionID;
-    const accountID = useStore((state) => state.accountID);
+    const { sessionID, accountID, isLoggedIn } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -26,14 +25,14 @@ export function useDetail() {
             return res.data;
         },
         enabled: isLoggedIn && !!id,
-        staleTime: 1000 * 60 * 5,
+        staleTime: QUERY_CONFIG.DETAILS.staleTime,
     });
 
     const { data: favouritesData, isFetching: isFavouritesFetching } = useQuery({
         queryKey: ['favourites', accountID],
         queryFn: () => getFavourites(accountID),
         enabled: isLoggedIn && !!accountID,
-        staleTime: 1000 * 60 * 2,
+        staleTime: QUERY_CONFIG.FAVOURITES.staleTime,
     });
 
     const favouritesList = favouritesData?.data?.results || [];
@@ -60,7 +59,7 @@ export function useDetail() {
                 queryKey: ['favourites', accountID]
             });
         },
-        
+
     });
 
     const isFavPending = isMutationPending || isFavouritesFetching;

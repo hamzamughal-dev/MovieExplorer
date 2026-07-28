@@ -1,15 +1,11 @@
 import { toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 
-import useStore from '../store/authStore';
+import useAuth from './useAuth';
 import { getSessionID, getAccountDetails, getRequestToken, getLoginDetails } from '../api/api';
 
 export function useLogin() {
-    const sessionID = useStore(state => state.sessionID);
-    const setSessionID = useStore(state => state.setSessionID);
-    const setAccountID = useStore(state => state.setAccountID);
-
-    const isLoggedIn = !!sessionID;
+    const { isLoggedIn, setSessionID, setAccountID } = useAuth();
 
     const performLogin = async (data) => {
         const requestToken = await getRequestToken();

@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
-import useStore from '../store/authStore';
+import useAuth from './useAuth';
 import { getMovies, searchMovies } from '../api/api';
+import { QUERY_CONFIG } from '../constants/queryConfig';
 
 export function useMovies(debouncedQuery = '') {
-    const sessionID = useStore(state => state.sessionID);
-    const isLoggedIn = !!sessionID;
+    const { isLoggedIn } = useAuth();
 
     const trimmedQuery = debouncedQuery.trim();
 
@@ -27,7 +27,7 @@ export function useMovies(debouncedQuery = '') {
             return totalPages && currentPage < totalPages ? currentPage + 1 : undefined;
         },
         enabled: isLoggedIn && !trimmedQuery,
-        staleTime: 1000 * 60 * 5
+        staleTime: QUERY_CONFIG.MOVIES.staleTime
     });
 
     const {
@@ -38,7 +38,7 @@ export function useMovies(debouncedQuery = '') {
         queryKey: ['searchMovies', trimmedQuery],
         queryFn: () => searchMovies(trimmedQuery),
         enabled: isLoggedIn && trimmedQuery.length > 0,
-        staleTime: 1000 * 60 * 2
+        staleTime: QUERY_CONFIG.SEARCH.staleTime
     });
 
     const movies = Array.from(
