@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #202731;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #01b4e4;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #90cea1;
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.animate-underline {
+  transform-origin: left;
+  animation: slide-in-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
