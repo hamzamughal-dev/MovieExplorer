@@ -94,6 +94,7 @@ export const getDetails = (id, type) => {
             },
         });
     }
+    return Promise.reject(new Error(`Unsupported media type: ${type}`));
 };
 
 export const addToFavourites = (accID, mediaID, sessionID, mediaType = "movie") => {

@@ -26,7 +26,7 @@ function MediaExplorerPage({ type = 'movie', title, searchPlaceholder, discoverT
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-        disabled: isSearchMode,
+        disabled: false,
     });
 
     const hasSearchInput = searchQuery.trim().length > 0;
@@ -87,7 +87,7 @@ function MediaExplorerPage({ type = 'movie', title, searchPlaceholder, discoverT
                 <>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-[24px]">
                         {displayItems.map((item, index) => {
-                            if (!isSearchMode && displayItems.length === index + 1) {
+                            if (displayItems.length === index + 1) {
                                 return (
                                     <div ref={lastElementRef} key={`${item.id}-${index}`}>
                                         <MovieCard movie={item} />

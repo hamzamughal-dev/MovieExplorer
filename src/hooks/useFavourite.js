@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
 import useAuth from './useAuth';
 import { getFavourites } from '../api/api';
@@ -9,36 +9,79 @@ export function useFavourite() {
 
     const {
         data: moviesData,
+        fetchNextPage: fetchNextMoviePage,
+        hasNextPage: hasNextMoviePage,
         isLoading: isMoviesLoading,
-        error: moviesError
-    } = useQuery({
+        isFetchingNextPage: isFetchingNextMoviePage,
+        error: moviesError,
+    } = useInfiniteQuery({
         queryKey: ["favourites", accountID, "movie"],
-        queryFn: () => getFavourites(accountID, sessionID, "movie"),
-        enabled: !!accountID,
+        queryFn: ({ pageParam = 1 }) => getFavourites(accountID, sessionID, "movie", pageParam),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, pages) => {
+            const currentPage = pages.length;
+            const totalPages = lastPage?.data?.total_pages;
+            return totalPages && currentPage < totalPages ? currentPage + 1 : undefined;
+        },
+        enabled: !!accountID && !!sessionID,
         staleTime: REACT_QUERY_CONFIG.DEFAULT.staleTime,
         gcTime: REACT_QUERY_CONFIG.DEFAULT.gcTime,
     });
 
     const {
         data: tvData,
+        fetchNextPage: fetchNextTvPage,
+        hasNextPage: hasNextTvPage,
         isLoading: isTvLoading,
-        error: tvError
-    } = useQuery({
+        isFetchingNextPage: isFetchingNextTvPage,
+        error: tvError,
+    } = useInfiniteQuery({
         queryKey: ["favourites", accountID, "tv"],
-        queryFn: () => getFavourites(accountID, sessionID, "tv"),
-        enabled: !!accountID,
+        queryFn: ({ pageParam = 1 }) => getFavourites(accountID, sessionID, "tv", pageParam),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, pages) => {
+            const currentPage = pages.length;
+            const totalPages = lastPage?.data?.total_pages;
+            return totalPages && currentPage < totalPages ? currentPage + 1 : undefined;
+        },
+        enabled: !!accountID && !!sessionID,
         staleTime: REACT_QUERY_CONFIG.DEFAULT.staleTime,
         gcTime: REACT_QUERY_CONFIG.DEFAULT.gcTime,
     });
 
-    const favoriteMovies = (moviesData?.data?.results ?? []).map(m => ({ ...m, media_type: 'movie' }));
-    const favoriteTv = (tvData?.data?.results ?? []).map(t => ({ ...t, media_type: 'tv' }));
+    const favoriteMovies = Array.from(
+        new Map(
+            moviesData?.pages
+                ?.flatMap((p) => p.data.results || [])
+                .map((m) => [m.id, { ...m, media_type: 'movie' }]) || []
+        ).values()
+    );
+
+    const favoriteTv = Array.from(
+        new Map(
+            tvData?.pages
+                ?.flatMap((p) => p.data.results || [])
+                .map((t) => [t.id, { ...t, media_type: 'tv' }]) || []
+        ).values()
+    );
+
     const movies = [...favoriteMovies, ...favoriteTv];
+
+    const hasNextPage = Boolean(hasNextMoviePage || hasNextTvPage);
+    const isFetchingNextPage = Boolean(isFetchingNextMoviePage || isFetchingNextTvPage);
+
+    const fetchNextPage = () => {
+        if (hasNextMoviePage) fetchNextMoviePage();
+        if (hasNextTvPage) fetchNextTvPage();
+    };
 
     return {
         isLoggedIn,
         movies,
         isLoading: isMoviesLoading || isTvLoading,
-        error: moviesError || tvError
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+        error: moviesError || tvError,
     };
 }
