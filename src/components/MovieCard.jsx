@@ -9,8 +9,9 @@ function MovieCard({ movie }) {
     const rating = getRatingColor(movie.vote_average);
 
     const navigate = useNavigate();
+    const mediaType = movie.media_type || (movie.first_air_date ? 'tv' : 'movie');
     const handleClick = () => {
-        navigate(`/detail/${movie.id}`);
+        navigate(`/detail/${movie.id}?type=${mediaType}`);
     }
 
     const ratingText = formatRating(movie.vote_average);

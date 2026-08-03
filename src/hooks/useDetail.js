@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import useAuth from './useAuth';
@@ -9,6 +9,8 @@ import { REACT_QUERY_CONFIG } from '../constants/queryConfig';
 export function useDetail() {
     const { sessionID, accountID, isLoggedIn } = useAuth();
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    const mediaType = searchParams.get('type') || 'movie';
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -19,9 +21,9 @@ export function useDetail() {
         isLoading: isDetailsLoading,
         error: detailsError,
     } = useQuery({
-        queryKey: ['movieDetails', id],
+        queryKey: ['mediaDetails', id, mediaType],
         queryFn: async () => {
-            const res = await getDetails(id);
+            const res = await getDetails(id, mediaType);
             return res.data;
         },
         enabled: isLoggedIn && !!id,
@@ -29,8 +31,8 @@ export function useDetail() {
     });
 
     const { data: favouritesData, isFetching: isFavouritesFetching } = useQuery({
-        queryKey: ['favourites', accountID],
-        queryFn: () => getFavourites(accountID),
+        queryKey: ['favourites', accountID, mediaType],
+        queryFn: () => getFavourites(accountID, sessionID, mediaType),
         enabled: isLoggedIn && !!accountID,
         staleTime: REACT_QUERY_CONFIG.DEFAULT.staleTime,
     });
@@ -39,13 +41,13 @@ export function useDetail() {
     const isFavorite = favouritesList.some((m) => Number(m.id) === Number(id));
 
     const { mutate: toggleFavorite, isPending: isMutationPending } = useMutation({
-        mutationKey: ['toggleFavorite', id],
+        mutationKey: ['toggleFavorite', id, mediaType],
         mutationFn: () => {
             if (isFavorite) {
-                return removeFromFavourites(accountID, id);
+                return removeFromFavourites(accountID, id, sessionID, mediaType);
             }
 
-            return addToFavourites(accountID, id);
+            return addToFavourites(accountID, id, sessionID, mediaType);
         },
         onMutate: () => {
             setFavError(null);
@@ -56,7 +58,7 @@ export function useDetail() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: ['favourites', accountID]
+                queryKey: ['favourites', accountID, mediaType]
             });
         },
 

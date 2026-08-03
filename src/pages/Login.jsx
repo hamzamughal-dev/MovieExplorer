@@ -46,7 +46,7 @@ function Login() {
         handleLogin(data, () => reset());
     };
 
-    if (isLoggedIn) return <Navigate to="/movies" replace />;
+    if (isLoggedIn) return <Navigate to="/home" replace />;
     if (isLoading) return <Loader text="Logging in..." className="min-h-screen bg-[#0a0d14]" />;
 
     return (

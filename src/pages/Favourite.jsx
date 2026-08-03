@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useFavourite } from '../hooks/useFavourite';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 
 import MovieCard from '../components/MovieCard';
 import Loader from '../components/Loader';
@@ -9,8 +10,18 @@ function Favourite() {
         isLoggedIn,
         movies,
         isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
         error
     } = useFavourite();
+
+    const lastElementRef = useInfiniteScroll({
+        isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+    });
 
     if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
@@ -23,7 +34,7 @@ function Favourite() {
                     Favourites
                 </h1>
                 <p className="text-slate-400 text-[14px] md:text-[15px]">
-                    Movies you've marked as favourites
+                    Movies and TV shows you've marked as favourites
                 </p>
             </div>
 
@@ -44,11 +55,26 @@ function Favourite() {
             )}
 
             {!isLoading && !error && movies.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-[24px]">
-                    {movies.map((movie) => (
-                        <MovieCard key={movie.id} movie={movie} />
-                    ))}
-                </div>
+                <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-6 gap-[24px]">
+                        {movies.map((movie, index) => {
+                            if (movies.length === index + 1) {
+                                return (
+                                    <div ref={lastElementRef} key={`${movie.id}-${index}`}>
+                                        <MovieCard movie={movie} />
+                                    </div>
+                                );
+                            }
+                            return <MovieCard key={`${movie.id}-${index}`} movie={movie} />;
+                        })}
+                    </div>
+
+                    {isFetchingNextPage && (
+                        <div className="mt-8 flex justify-center">
+                            <Loader text="Loading more favourites..." className="h-[100px]" />
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
