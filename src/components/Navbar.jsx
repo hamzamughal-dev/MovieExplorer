@@ -19,7 +19,9 @@ function Navbar() {
     };
 
     const navLinks = [
+        { name: 'Home', path: '/home' },
         { name: 'Movies', path: '/movies' },
+        { name: 'TV Shows', path: '/tv' },
         { name: 'Favourites', path: '/favourite' }
     ];
 
@@ -28,7 +30,7 @@ function Navbar() {
     return (
         <nav className="sticky top-0 bg-[#242934] border-b border-white/5 px-6 md:px-[40px] py-2.5 z-50">
             <div className="relative flex items-center justify-between max-w-7xl mx-auto">
-                <Link to={isLoggedIn ? "/movies" : "/login"} className="flex items-center gap-2.5 flex-shrink-0 group">
+                <Link to={isLoggedIn ? "/home" : "/login"} className="flex items-center gap-2.5 flex-shrink-0 group">
                     <LogoIcon className="w-[42px] h-[42px] cursor-pointer transition-transform duration-300 group-hover:scale-105" />
                     <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-[#01b4e4] to-[#90cea1] bg-clip-text text-transparent tracking-wide select-none">
                         Movie Explorer
